@@ -18,6 +18,7 @@
         .tag-badge { @apply px-2 py-0.5 text-xs font-semibold rounded-full cursor-pointer hover:opacity-80 transition; }
         .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
         .chart-container { position: relative; height: 300px; width: 100%; }
+        @media (max-width: 640px) { .chart-container { height: 250px; } }
     </style>
 </head>
 <body class="text-slate-800">
@@ -47,12 +48,13 @@
                     <span class="text-sm font-bold text-blue-700 whitespace-nowrap">👋 我住在：</span>
                     <select id="myVillageFilter" class="text-sm border-slate-300 rounded hover:border-blue-400 focus:ring-blue-500 transition cursor-pointer w-full md:w-auto">
                         <option value="">請選擇您的里...</option>
-                    </select>
+                        </select>
                 </div>
                 <span class="text-xs text-slate-500 md:ml-2" id="villageInfo">← 選擇後自動幫您鎖定該區代議士</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                
                 <div class="md:col-span-4 relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
                     <input type="text" id="searchInput" placeholder="搜尋關鍵字 (例: 教育, 公園)..." 
@@ -68,7 +70,8 @@
                         <option value="all">📑 所有資料類型</option>
                         <option value="提案">提案 (Action)</option>
                         <option value="質詢">質詢 (Question)</option>
-                        </select>
+                        <option value="會議記錄">會議記錄 (Record)</option>
+                    </select>
 
                     <select id="locationFilter" class="rounded-lg border-slate-300 text-sm py-2 pl-2 pr-8 bg-slate-50 hover:bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 shadow-sm">
                         <option value="竹北市" selected>🏠 竹北市 (預設)</option>
@@ -140,14 +143,14 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 card cursor-pointer">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-slate-700 flex items-center gap-2"><span class="w-2 h-6 bg-indigo-500 rounded-full"></span>議題關注分佈</h3>
-                        <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">點擊圖表可篩選</span>
+                        <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">點擊圖表可篩選 (已過濾雜訊)</span>
                     </div>
                     <div class="chart-container"><canvas id="topicChart"></canvas></div>
                 </div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 card cursor-pointer">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-slate-700 flex items-center gap-2"><span class="w-2 h-6 bg-blue-500 rounded-full"></span>代議士活躍度 (Top 10)</h3>
-                        <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">點擊長條可篩選</span>
+                        <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">含提案與質詢</span>
                     </div>
                     <div class="chart-container"><canvas id="repChart"></canvas></div>
                 </div>
@@ -172,12 +175,12 @@
 
     <script>
         // ==========================================
-        // 🚀 設定區：請在此填入 CSV 連結
+        // 🚀 設定區：請將您的 CSV 連結填入這裡
         // ==========================================
         const URLS = [
             'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=0&single=true&output=csv', // 01 (提案)
             'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1384163042&single=true&output=csv', // City (市代)
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1109447761&single=true&output=csv'  // 🔥 03 (質詢) - 請填入您的連結
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1109447761&single=true&output=csv'  // 03 (質詢) - 請填入
         ];
 
         const VILLAGE_MAP = {
@@ -337,15 +340,17 @@
             }
             data.forEach(item => {
                 let typeColor = 'bg-slate-100 text-slate-600', borderClass = 'border-slate-300';
+                // 視覺分流：提案(藍) / 質詢(橘)
                 if(item.Type === '提案') { typeColor = 'bg-blue-100 text-blue-700'; borderClass = 'border-blue-400'; }
                 if(item.Type === '質詢') { typeColor = 'bg-orange-100 text-orange-700'; borderClass = 'border-orange-400'; }
+                
                 const levelColor = item.Level.includes('縣') ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700';
                 const linkBtn = item.Source && item.Source.startsWith('http') ? `<a href="${item.Source}" target="_blank" class="text-xs flex items-center gap-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-md transition shadow-sm ml-auto">🔗 查看原始文件</a>` : '';
 
-                // 🔥 關鍵修改：文字過長截斷 (Truncate)
-                let displayContent = item.Content;
-                if (displayContent.length > 120) {
-                    displayContent = displayContent.substring(0, 120) + '...';
+                // 🔥 文字防爆 (Truncate)：超過100字就切斷
+                let displayContent = item.Content || "無詳細內容";
+                if (displayContent.length > 100) {
+                    displayContent = displayContent.substring(0, 100) + '...';
                 }
 
                 const html = `
@@ -387,6 +392,7 @@
             document.getElementById('topKeyword').innerText = sortedTags.length ? `#${sortedTags[0][0]}` : '-';
 
             const repCounts = {};
+            // 這次統計包含質詢
             data.filter(d => d.Type !== '會議記錄').forEach(d => repCounts[d.Rep_Name] = (repCounts[d.Rep_Name] || 0) + 1);
             const sortedReps = Object.entries(repCounts).sort((a,b)=>b[1]-a[1]);
             document.getElementById('topRep').innerText = sortedReps.length ? sortedReps[0][0] : '-';
