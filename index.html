@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>竹北/新竹縣 議事監督平台</title>
     <meta name="description" content="整合新竹縣議會與竹北市民代表會的議事資料，視覺化監督平台。">
+    <meta property="og:title" content="竹北/新竹縣 議事監督平台">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,164 +20,213 @@
         .tag-badge { @apply px-2 py-0.5 text-xs font-semibold rounded-full cursor-pointer hover:opacity-80 transition; }
         .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .magic-select { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
-        .btn-active { background-color: #fee2e2 !important; color: #ef4444 !important; border-color: #ef4444 !important; animation: pulse 2s infinite; font-weight: bold; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .chart-container { position: relative; height: 300px; width: 100%; }
-        @media (max-width: 640px) { .chart-container { height: 250px; } }
         
+        /* Hero 漸層 */
+        .hero-section { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; }
+        
+        /* 醒目選單 */
+        .magic-select { border: 2px solid #3b82f6; background-color: #eff6ff; }
+        
+        /* 篩選器展開動畫 */
+        #mobileFilters { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out; overflow: hidden; }
+        .filters-hidden { max-height: 0; opacity: 0; }
+        .filters-visible { max-height: 500px; opacity: 1; }
+
+        /* 內容摺疊 */
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
+        
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        @media (max-width: 640px) { .chart-container { height: 250px; } }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-800 pb-20">
 
-    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-200">
+    <nav class="bg-white shadow-sm z-50 border-b border-slate-200 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
-                    <div class="bg-blue-600 text-white p-2 rounded-lg">
-                        <i class="fa-solid fa-gavel text-xl"></i>
+            <div class="flex items-center justify-between h-14">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+                    <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg">
+                        <i class="fa-solid fa-gavel"></i>
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-wide text-slate-800">竹北/新竹縣 議事監督平台</h1>
-                    </div>
+                    <h1 class="text-lg font-bold tracking-wide text-slate-800">竹北議事監督</h1>
                 </div>
-                <div class="hidden md:block text-xs text-slate-500">
-                    資料來源：新竹縣議會、新竹縣政府、竹北市民代表會
+                <div class="text-[10px] text-slate-400 hidden md:block">
+                    資料來源：新竹縣議會、縣政府、竹北市代會
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300" id="controlPanel">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            
-            <div class="flex flex-col md:flex-row items-center justify-center gap-3 mb-4">
-                <label for="myVillageFilter" class="text-base font-bold text-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-location-dot text-red-500 animate-bounce"></i> 
-                    請先選擇您居住的里：
-                </label>
-                <select id="myVillageFilter" class="magic-select text-base border-slate-300 rounded-lg px-4 py-2 bg-white font-medium w-full md:w-64 cursor-pointer">
-                    <option value="">-- 點此選擇 --</option>
-                </select>
-                <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded" id="villageInfo" style="display:none;">
-                    <i class="fa-solid fa-check text-green-500"></i> 已自動鎖定選區
-                </span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded-lg border border-slate-200">
-                <div class="md:col-span-1 text-xs font-bold text-slate-500 text-center md:text-right">進階篩選:</div>
-                <div class="md:col-span-3 relative">
-                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400"></i>
-                    <input type="text" id="searchInput" placeholder="輸入關鍵字 (如: 公園)..." 
-                           class="w-full pl-9 pr-4 py-1.5 rounded border-slate-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+    <div class="hero-section py-6 px-4 shadow-md">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="md:w-3/4">
+                    <h2 class="text-xl font-bold mb-1 flex items-center gap-2">
+                        👋 您的議事小幫手
+                    </h2>
+                    <p class="text-blue-100 text-xs md:text-sm leading-relaxed">
+                        輸入關鍵字或選擇您的居住地，快速查看代議士們的提案與質詢紀錄。
+                        <span class="hidden md:inline">所有資料皆來自政府公開資訊，經由自動化程式整理。</span>
+                    </p>
                 </div>
-                <div class="md:col-span-8 flex flex-wrap gap-2">
-                    <select id="levelFilter" class="rounded border-slate-300 text-sm py-1.5 pl-2 pr-8 w-full md:w-auto cursor-pointer"><option value="all">🏛️ 所有層級</option></select>
-                    <select id="typeFilter" class="rounded border-slate-300 text-sm py-1.5 pl-2 pr-8 w-full md:w-auto cursor-pointer">
-                        <option value="all">📑 所有資料類型</option>
-                        <option value="提案">提案 (Action)</option>
-                        <option value="質詢">質詢 (Question)</option>
-                    </select>
-                    <select id="locationFilter" class="rounded border-slate-300 text-sm py-1.5 pl-2 pr-8 w-full md:w-auto cursor-pointer">
-                        <option value="竹北市" selected>🏠 竹北市 (預設)</option>
-                        <option value="all">🌏 全區域</option>
-                        <optgroup label="竹北市代選區">
-                            <option value="市代一區">第1選區 (高鐵/十興...)</option>
-                            <option value="市代二區">第2選區 (縣政/斗崙...)</option>
-                            <option value="市代三區">第3選區 (新社/聯興...)</option>
-                            <option value="市代四區">第4選區 (鳳岡/麻園...)</option>
-                        </optgroup>
-                        <optgroup label="縣議員選區(2026新制)">
-                            <option value="議員東區">鐵路以東</option>
-                            <option value="議員西區">鐵路以西</option>
-                        </optgroup>
-                    </select>
-                    <select id="repFilter" class="rounded border-slate-300 text-sm py-1.5 pl-2 pr-8 w-full md:w-auto cursor-pointer"><option value="all">👤 所有代議士</option></select>
-                    <button id="resetBtn" onclick="resetFilters()" class="px-4 py-1.5 text-xs bg-white border border-slate-300 rounded text-slate-500 transition ml-auto flex items-center gap-1">
-                        <i class="fa-solid fa-rotate-right"></i> <span id="resetText">重置</span>
+                <div class="md:w-1/4 text-right w-full">
+                    <button onclick="toggleInfo()" class="w-full md:w-auto bg-white/10 hover:bg-white/20 border border-white/30 text-white px-3 py-1.5 rounded-full text-xs transition backdrop-blur-sm">
+                        <i class="fa-solid fa-circle-info mr-1"></i> 資料來源與聲明
                     </button>
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mt-2 text-[10px] text-slate-400 px-1">
-                <span id="dataStatus">等待資料載入...</span>
-                <span id="updateTime"></span>
+            <div id="infoPanel" class="hidden mt-4 bg-black/20 p-4 rounded-lg text-xs text-blue-50 border border-white/10">
+                <h3 class="font-bold text-white mb-2">ℹ️ 關於本平台</h3>
+                <ul class="list-disc list-inside space-y-1 opacity-90">
+                    <li><strong>資料來源：</strong> 新竹縣議會官網、新竹縣政府質詢回應網、竹北市民代表會。</li>
+                    <li><strong>統計區間：</strong> <span id="dateRangeInfo" class="font-mono text-yellow-300">載入中...</span></li>
+                    <li><strong>免責聲明：</strong> 本平台為民間自發製作，內容經程式自動擷取整理，若有疏漏請以官方公告為準。</li>
+                </ul>
             </div>
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-8">
-        <div id="loadingArea" class="py-20 text-center">
-            <div class="loading-spinner mb-4"></div>
-            <p class="text-slate-500 animate-pulse">正在同步雲端資料庫，請稍候...</p>
-            <p class="text-xs text-slate-400 mt-2" id="loadingStatus">連線中...</p>
-        </div>
-        <div id="errorArea" class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-center text-sm shadow-sm"></div>
+    <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300" id="controlPanel">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            
+            <div class="flex gap-2 items-center">
+                <div class="relative flex-grow">
+                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400"></i>
+                    <input type="text" id="searchInput" placeholder="搜尋關鍵字 (例: 公園)..." 
+                           class="w-full pl-9 pr-4 py-2 rounded-lg border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 text-sm transition shadow-sm">
+                </div>
+                <button onclick="toggleMobileFilters()" class="md:hidden px-3 py-2 bg-slate-100 text-slate-600 rounded-lg border border-slate-200 hover:bg-slate-200 transition text-sm whitespace-nowrap">
+                    <i class="fa-solid fa-sliders"></i> 篩選
+                </button>
+                <button onclick="resetFilters()" class="hidden md:block px-3 py-2 text-xs text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition border border-transparent hover:border-red-200 whitespace-nowrap">
+                    <i class="fa-solid fa-rotate-right"></i> 重置
+                </button>
+            </div>
 
-        <div id="dashboardView" class="hidden space-y-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-blue-200 transition">
-                    <div class="text-xs text-slate-500 mb-1">資料總筆數</div>
-                    <div class="text-2xl font-bold text-slate-800" id="totalCount">0</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-indigo-200 transition">
-                    <div class="text-xs text-slate-500 mb-1">熱門議題</div>
-                    <div class="text-lg font-bold text-indigo-600 truncate" id="topKeyword">-</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-green-200 transition">
-                    <div class="text-xs text-slate-500 mb-1">最活躍代議士</div>
-                    <div class="text-lg font-bold text-green-600 truncate" id="topRep">-</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:border-slate-300 transition">
-                    <div class="text-xs text-slate-500 mb-1">資料區間</div>
-                    <div class="text-sm font-bold text-slate-700" id="dateRange">-</div>
+            <div id="mobileFilters" class="filters-hidden md:block md:max-h-full md:opacity-100 mt-2 md:mt-3">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
+                    
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-2">
+                        <label class="text-sm font-bold text-blue-700 flex items-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-location-dot"></i> 我住在：
+                        </label>
+                        <select id="myVillageFilter" class="magic-select text-sm rounded px-3 py-1.5 w-full md:w-auto cursor-pointer">
+                            <option value="">-- 請選擇里別 --</option>
+                        </select>
+                        <span class="text-xs text-slate-500 hidden" id="villageInfo"></span>
+                    </div>
+
+                    <hr class="border-slate-200 md:hidden">
+
+                    <div class="flex flex-wrap gap-2">
+                        <select id="locationFilter" class="rounded border-slate-300 text-xs py-1.5 pl-2 pr-8 w-[48%] md:w-auto">
+                            <option value="竹北市" selected>🏠 竹北市</option>
+                            <option value="all">🌏 全區域</option>
+                            <optgroup label="竹北市代選區">
+                                <option value="市代一區">第1選區</option>
+                                <option value="市代二區">第2選區</option>
+                                <option value="市代三區">第3選區</option>
+                                <option value="市代四區">第4選區</option>
+                            </optgroup>
+                            <optgroup label="縣議員選區(2026)">
+                                <option value="議員東區">鐵路以東</option>
+                                <option value="議員西區">鐵路以西</option>
+                            </optgroup>
+                            <optgroup label="其他">
+                                <option value="校園">校園周邊</option>
+                                <option value="其他鄉鎮">其他鄉鎮</option>
+                            </optgroup>
+                        </select>
+
+                        <select id="levelFilter" class="rounded border-slate-300 text-xs py-1.5 pl-2 pr-8 w-[48%] md:w-auto">
+                            <option value="all">🏛️ 所有層級</option>
+                        </select>
+
+                        <select id="typeFilter" class="rounded border-slate-300 text-xs py-1.5 pl-2 pr-8 w-[48%] md:w-auto">
+                            <option value="all">📑 所有類型</option>
+                            <option value="提案">提案</option>
+                            <option value="質詢">質詢</option>
+                        </select>
+
+                        <select id="repFilter" class="rounded border-slate-300 text-xs py-1.5 pl-2 pr-8 w-[48%] md:w-auto">
+                            <option value="all">👤 所有代議士</option>
+                        </select>
+                        
+                        <button onclick="resetFilters()" class="md:hidden w-full mt-1 py-2 text-xs bg-white border border-slate-300 text-slate-500 rounded hover:bg-red-50 hover:text-red-500 transition">
+                            重置所有條件
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 card cursor-pointer">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-700"><i class="fa-solid fa-chart-pie text-indigo-500 mr-2"></i>議題關注分佈</h3>
-                        <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">點擊圖表可篩選</span>
-                    </div>
+            
+            <div class="flex justify-between items-center mt-2 px-1">
+                <span class="text-[10px] text-slate-400" id="dataStatus">等待載入...</span>
+                <span class="text-[10px] text-slate-400" id="updateTime"></span>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 space-y-6">
+        <div id="loadingArea" class="py-10 text-center">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-xs text-slate-400 animate-pulse">正在同步資料庫...</p>
+        </div>
+        <div id="errorArea" class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-center text-xs shadow-sm"></div>
+
+        <div id="dashboardView" class="hidden space-y-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
+                    <div class="text-[10px] text-slate-400 mb-1">資料筆數</div>
+                    <div class="text-xl font-bold text-slate-800" id="totalCount">0</div>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
+                    <div class="text-[10px] text-slate-400 mb-1">熱門議題</div>
+                    <div class="text-base font-bold text-indigo-600 truncate" id="topKeyword">-</div>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100">
+                    <div class="text-[10px] text-slate-400 mb-1">活躍代議士</div>
+                    <div class="text-base font-bold text-green-600 truncate" id="topRep">-</div>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-100 hidden md:block">
+                    <div class="text-[10px] text-slate-400 mb-1">資料區間</div>
+                    <div class="text-xs font-bold text-slate-700" id="dateRange">-</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-700 mb-2">議題分佈</h3>
                     <div class="chart-container"><canvas id="topicChart"></canvas></div>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 card cursor-pointer">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-slate-700"><i class="fa-solid fa-chart-simple text-blue-500 mr-2"></i>代議士活躍度 (Top 10)</h3>
-                        <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-1 rounded">點擊長條可篩選</span>
-                    </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-700 mb-2">活躍度 Top 10</h3>
                     <div class="chart-container"><canvas id="repChart"></canvas></div>
                 </div>
             </div>
         </div>
 
         <div id="listView" class="hidden">
-            <h3 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
-                <span>📋 詳細議事紀錄</span>
-                <span class="text-xs font-normal text-slate-500 bg-slate-200 px-2 py-1 rounded-full" id="resultCountBadge">0 筆</span>
+            <h3 class="text-base font-bold text-slate-700 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-list-ul text-blue-500"></i> 詳細紀錄
+                <span class="text-[10px] font-normal text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full" id="resultCountBadge">0</span>
             </h3>
-            <div id="listContainer" class="space-y-4"></div>
-            <div class="text-center mt-8">
-                <button id="loadMoreBtn" class="hidden px-6 py-2 bg-white border border-slate-300 text-slate-600 rounded-full hover:bg-slate-50 transition text-sm shadow-sm" onclick="loadMore()">
+            <div id="listContainer" class="space-y-3"></div>
+            <div class="text-center mt-6">
+                <button id="loadMoreBtn" class="hidden px-6 py-2 bg-white border border-slate-300 text-slate-600 rounded-full hover:bg-slate-50 transition text-xs shadow-sm" onclick="loadMore()">
                     載入更多...
                 </button>
             </div>
         </div>
     </main>
 
-    <footer class="bg-slate-900 text-slate-400 py-8 mt-12 text-center text-sm border-t border-slate-700">
-        <p>&copy; 2025 竹北/新竹縣 議事監督平台</p>
-        <p class="text-xs mt-1 opacity-60">Powered by Open Data & Civic Tech</p>
-    </footer>
-
     <script>
-        // CSV 連結區
+        // CSV 設定
         const URLS = [
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=0&single=true&output=csv', // 01
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1384163042&single=true&output=csv', // City
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1109447761&single=true&output=csv'  // 03
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=0&single=true&output=csv',
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1384163042&single=true&output=csv',
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1109447761&single=true&output=csv'
         ];
 
         const VILLAGE_MAP = {
@@ -203,6 +253,18 @@
         let loadTimeout;
 
         function toggleInfo() { document.getElementById('infoPanel').classList.toggle('hidden'); }
+
+        // 手機版篩選開關
+        function toggleMobileFilters() {
+            const panel = document.getElementById('mobileFilters');
+            if (panel.classList.contains('filters-hidden')) {
+                panel.classList.remove('filters-hidden');
+                panel.classList.add('filters-visible');
+            } else {
+                panel.classList.remove('filters-visible');
+                panel.classList.add('filters-hidden');
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
@@ -237,6 +299,10 @@
                     document.getElementById('locationFilter').value = zone;
                     document.getElementById('villageInfo').style.display = 'inline-block';
                     document.getElementById('villageInfo').innerHTML = `<i class="fa-solid fa-check"></i> 鎖定：${villageName} (${zone})`;
+                    
+                    // 手機選完後自動收合篩選器
+                    if(window.innerWidth < 768) toggleMobileFilters();
+                    
                     document.getElementById('dashboardView').scrollIntoView({behavior: 'smooth'});
                 } else {
                     document.getElementById('searchInput').value = "";
@@ -249,8 +315,8 @@
 
         function loadData() {
             loadTimeout = setTimeout(() => {
-                document.getElementById('loadingStatus').innerHTML = `<span class="text-red-500">連線較久，請檢查網路或重新整理...</span>`;
-            }, 8000);
+                document.getElementById('dataStatus').innerHTML = `<span class="text-red-500">載入較慢，請稍候...</span>`;
+            }, 5000);
 
             const promises = URLS.filter(u => u && !u.includes('請貼上')).map(url => 
                 new Promise((resolve) => {
@@ -263,7 +329,6 @@
             
             Promise.all(promises).then(results => {
                 clearTimeout(loadTimeout);
-                
                 rawData = results.flat()
                     .filter(item => item && item.Subject) 
                     .map(item => {
@@ -276,30 +341,26 @@
                                 dateObj: new Date(dateStr),
                                 Summary: item.Summary || (item.Content ? String(item.Content).substring(0, 100) + '...' : '')
                             };
-                        } catch (e) {
-                            console.warn("Skipping bad row:", item);
-                            return null;
-                        }
+                        } catch (e) { return null; }
                     })
                     .filter(item => item !== null)
                     .sort((a, b) => b.dateObj - a.dateObj);
 
                 if(rawData.length === 0) {
-                    document.getElementById('errorArea').innerText = "讀取到的資料為空，請檢查 Google Sheet 連結設定。";
+                    document.getElementById('errorArea').innerText = "暫無資料，請檢查 CSV 連結。";
                     document.getElementById('errorArea').classList.remove('hidden');
-                    document.getElementById('loadingArea').classList.add('hidden');
                 } else {
                     initFilterOptions(rawData);
                     filterAndRender();
                     document.getElementById('loadingArea').classList.add('hidden');
                     document.getElementById('dashboardView').classList.remove('hidden');
                     document.getElementById('listView').classList.remove('hidden');
-                    document.getElementById('updateTime').innerText = `最後更新: ${new Date().toLocaleString()}`;
+                    if(rawData.length > 0) {
+                        const d1 = rawData[0].Date || '最新';
+                        const d2 = rawData[rawData.length-1].Date || '最舊';
+                        document.getElementById('dateRangeInfo').innerText = `${d1} ~ ${d2}`;
+                    }
                 }
-            }).catch(err => {
-                clearTimeout(loadTimeout);
-                document.getElementById('errorArea').innerText = "系統發生錯誤：" + err.message;
-                document.getElementById('errorArea').classList.remove('hidden');
             });
         }
 
@@ -335,22 +396,10 @@
             const loc = document.getElementById('locationFilter').value;
             const rep = document.getElementById('repFilter').value;
 
-            const resetBtn = document.getElementById('resetBtn');
-            const resetText = document.getElementById('resetText');
-            const isFiltering = search || level!=='all' || type!=='all' || loc!=='竹北市' || rep!=='all';
-            if (isFiltering) {
-                resetBtn.classList.add('btn-active');
-                resetText.innerText = "清除篩選";
-            } else {
-                resetBtn.classList.remove('btn-active');
-                resetText.innerText = "重置";
-            }
-
             filteredData = rawData.filter(item => {
                 const subj = (item.Subject || "").toLowerCase();
                 const cont = (item.Content || "").toLowerCase();
                 const tagStr = (item.Tags || "").toLowerCase();
-                
                 const matchSearch = !search || subj.includes(search) || cont.includes(search) || tagStr.includes(search);
                 const matchLevel = level === 'all' || item.Level === level;
                 const matchType = type === 'all' || item.Type === type;
@@ -361,8 +410,8 @@
 
             updateDashboard(filteredData);
             renderList(filteredData.slice(0, displayLimit));
-            document.getElementById('dataStatus').innerText = `顯示 ${filteredData.length} / ${rawData.length} 筆資料`;
-            document.getElementById('resultCountBadge').innerText = `${filteredData.length} 筆`;
+            document.getElementById('dataStatus').innerText = `顯示 ${filteredData.length} / ${rawData.length} 筆`;
+            document.getElementById('resultCountBadge').innerText = `${filteredData.length}`;
             
             const loadMoreBtn = document.getElementById('loadMoreBtn');
             if (filteredData.length > displayLimit) loadMoreBtn.classList.remove('hidden');
@@ -382,18 +431,17 @@
                 if(item.Type === '質詢') { typeColor = 'bg-orange-100 text-orange-700'; borderClass = 'border-orange-400'; icon='fa-comments'; }
                 
                 const levelColor = (item.Level || '').includes('縣') ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700';
-                const linkBtn = item.Source && item.Source.startsWith('http') ? `<a href="${item.Source}" target="_blank" class="text-xs flex items-center gap-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-md transition shadow-sm ml-auto">🔗 查看原始文件</a>` : '';
+                const linkBtn = item.Source && item.Source.startsWith('http') ? `<a href="${item.Source}" target="_blank" class="text-[10px] flex items-center gap-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-2 py-1 rounded transition shadow-sm ml-auto">🔗 原始文件</a>` : '';
 
                 let contentHtml = '';
                 const contentText = item.Content || '無詳細內容';
-                if (contentText.length > 120) {
+                if (contentText.length > 100) {
                     contentHtml = `
                         <details class="group">
                             <summary class="list-none cursor-pointer text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100 hover:bg-slate-100 transition">
-                                <span class="font-bold text-slate-500">📋 內容/回覆摘要：</span> 
-                                ${contentText.substring(0, 120)}...
-                                <span class="text-blue-500 text-xs ml-2 group-open:hidden">展開更多 ▼</span>
-                                <span class="text-blue-500 text-xs ml-2 hidden group-open:inline">收合 ▲</span>
+                                <span class="font-bold text-slate-500">📋 摘要：</span> 
+                                ${contentText.substring(0, 100)}...
+                                <span class="text-blue-500 text-xs ml-1 group-open:hidden">展開</span>
                             </summary>
                             <div class="mt-2 p-3 bg-white border border-slate-100 rounded-lg text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">${contentText}</div>
                         </details>
@@ -403,24 +451,24 @@
                 }
 
                 const html = `
-                    <div class="card bg-white p-5 rounded-xl shadow-sm border-l-4 ${borderClass}">
-                        <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
+                    <div class="card bg-white p-4 rounded-xl shadow-sm border-l-4 ${borderClass}">
+                        <div class="flex flex-wrap justify-between items-start gap-2 mb-2">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="tag-badge ${levelColor}">${item.Level || '未知'}</span>
-                                <span class="tag-badge ${typeColor}"><i class="fa-solid ${icon} mr-1"></i>${item.Type || '其他'}</span>
-                                <span class="text-xs text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${item.Date || '-'}</span>
+                                <span class="tag-badge ${levelColor}">${item.Level}</span>
+                                <span class="tag-badge ${typeColor}"><i class="fa-solid ${icon} mr-1"></i>${item.Type}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">${item.Date}</span>
                             </div>
-                            <div class="flex gap-1">
+                            <div class="flex gap-1 flex-wrap">
                                 ${item.tagList.slice(0,3).map(t => `<span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded cursor-pointer hover:bg-blue-100 hover:text-blue-600" onclick="quickSearch('${t}')">#${t}</span>`).join('')}
                             </div>
                         </div>
-                        <h4 class="text-lg font-bold text-slate-800 mb-2 leading-snug">${item.Subject || '無標題'}</h4>
-                        <div class="flex items-center gap-3 mb-4 text-sm">
-                            <div class="flex items-center gap-1 font-medium text-slate-700"><span class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></span>${item.Rep_Name || '未知'}</div>
-                            ${item.Target_Unit && item.Target_Unit!=='-' ? `<span class="text-xs text-slate-400 bg-slate-50 px-2 py-0.5 rounded">➜ ${item.Target_Unit}</span>` : ''}
+                        <h4 class="text-base font-bold text-slate-800 mb-2 leading-snug">${item.Subject}</h4>
+                        <div class="flex items-center gap-3 mb-3 text-xs">
+                            <div class="flex items-center gap-1 font-medium text-slate-700"><i class="fa-solid fa-user text-slate-400"></i> ${item.Rep_Name}</div>
+                            ${item.Target_Unit && item.Target_Unit!=='-' ? `<span class="text-slate-400 bg-slate-50 px-1.5 rounded">➜ ${item.Target_Unit}</span>` : ''}
                         </div>
                         ${contentHtml}
-                        <div class="flex items-center justify-between mt-3 pt-2 border-t border-slate-50">
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
                             ${linkBtn}
                         </div>
                     </div>
@@ -431,26 +479,20 @@
 
         function updateDashboard(data) {
             document.getElementById('totalCount').innerText = data.length;
-            if(data.length > 0) {
-                 const d1 = data[data.length-1].Date;
-                 const d2 = data[0].Date;
-                 document.getElementById('dateRange').innerText = `${d1} ~ ${d2}`;
-            }
-            // 🔥 關鍵修正：移除 dateRangeInfo 的更新，因為該元素已被移除
-            
             const IGNORED_TAGS = ['竹北議題', '新竹縣', '一般', '其他', '提案', '質詢', '議事錄', 'PDF', '無標題', '內容', '相關', '說明'];
             const tagCounts = {};
             data.forEach(d => d.tagList.forEach(t => { if (!IGNORED_TAGS.includes(t)) tagCounts[t] = (tagCounts[t] || 0) + 1; }));
             const sortedTags = Object.entries(tagCounts).sort((a,b)=>b[1]-a[1]);
             document.getElementById('topKeyword').innerText = sortedTags.length ? `#${sortedTags[0][0]}` : '-';
-
             const repCounts = {};
             data.filter(d => d.Type !== '會議記錄').forEach(d => repCounts[d.Rep_Name] = (repCounts[d.Rep_Name] || 0) + 1);
             const sortedReps = Object.entries(repCounts).sort((a,b)=>b[1]-a[1]);
             document.getElementById('topRep').innerText = sortedReps.length ? sortedReps[0][0] : '-';
-
-            drawTopicChart(sortedTags.slice(0, 8));
-            drawRepChart(sortedReps.slice(0, 10));
+            
+            if(window.innerWidth > 768) { // 手機版不畫圖表以省空間，或可縮小
+                drawTopicChart(sortedTags.slice(0, 8));
+                drawRepChart(sortedReps.slice(0, 10));
+            }
         }
 
         function drawTopicChart(tagsData) {
@@ -459,7 +501,7 @@
             topicChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: { labels: tagsData.map(t => t[0]), datasets: [{ data: tagsData.map(t => t[1]), backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8B5CF6', '#EC4899', '#06b6d4', '#84cc16'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 10} } } }, onClick: (e, elements) => { if(elements.length > 0) quickSearch(topicChart.data.labels[elements[0].index]); } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: {size: 10} } } }, onClick: (e, elements) => { if(elements.length > 0) quickSearch(topicChart.data.labels[elements[0].index]); } }
             });
         }
 
@@ -476,8 +518,6 @@
         function quickSearch(keyword) {
             const input = document.getElementById('searchInput');
             input.value = keyword; input.dispatchEvent(new Event('input'));
-            input.classList.add('ring-2', 'ring-blue-500');
-            setTimeout(() => input.classList.remove('ring-2', 'ring-blue-500'), 500);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
