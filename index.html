@@ -30,22 +30,6 @@
         .btn-filter-toggle:hover { background-color: #1e3a8a; transform: translateY(-1px); }
         .btn-filter-toggle.active { background-color: #f59e0b; border-color: #f59e0b; color: white; }
 
-        /* 醒目的清除按鈕 */
-        .btn-reset {
-            background-color: white; color: #dc2626; border: 2px solid #fecaca;
-            transition: all 0.2s; font-weight: 600; padding: 0.4rem 1rem;
-        }
-        .btn-reset:hover { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; }
-
-        /* 「返回全部」按鈕 (模擬上一頁) */
-        .btn-back-all {
-            display: flex; align-items: center; justify-content: center; width: 100%;
-            background-color: #eff6ff; color: #1d4ed8; border: 2px dashed #bfdbfe;
-            padding: 10px; border-radius: 0.5rem; font-weight: bold; cursor: pointer;
-            transition: all 0.2s; margin-bottom: 1rem;
-        }
-        .btn-back-all:hover { background-color: #dbeafe; border-color: #3b82f6; }
-
         /* 篩選面板 */
         #filterPanel { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; max-height: 0; opacity: 0; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
         #filterPanel.open { max-height: 800px; opacity: 1; padding-bottom: 1.5rem; box-shadow: inset 0 -2px 6px rgba(0,0,0,0.05); }
@@ -56,9 +40,11 @@
         .card-proposal { border-left: 5px solid #3b82f6; }
         .card-interpellation { border-left: 5px solid #f97316; }
 
-        /* 標籤與按鈕 */
+        /* 原始文件按鈕 */
         .btn-source { background: white; border: 1px solid #94a3b8; color: #475569; font-size: 0.7rem; padding: 4px 12px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
         .btn-source:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
+
+        /* 標籤 */
         .tag-badge { font-size: 0.75rem; padding: 2px 10px; border-radius: 9999px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.8); border: 1px solid #e2e8f0; font-weight: 500; }
         .tag-badge:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 
@@ -97,10 +83,6 @@
                         <i class="fa-solid fa-sliders"></i> 
                         <span>篩選條件</span>
                     </button>
-                    
-                    <button onclick="resetFilters()" class="btn-reset flex items-center gap-1.5 rounded-lg text-xs shadow-sm" title="清除所有條件">
-                        <i class="fa-solid fa-rotate-left"></i> <span class="hidden md:inline">清除重置</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -111,7 +93,7 @@
                     <div class="col-span-2 md:col-span-1 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                         <label class="block text-[11px] font-bold text-blue-600 mb-1.5 uppercase tracking-wider">📍 居住地 (依里別)</label>
                         <select id="myVillageFilter" class="w-full text-sm rounded border-slate-300 py-2 bg-blue-50 text-blue-900 border-blue-200 focus:ring-blue-500 cursor-pointer font-medium">
-                            <option value="">-- 請選擇 --</option>
+                            <option value="">-- 選擇里別 (自動定位) --</option>
                         </select>
                     </div>
 
@@ -168,8 +150,8 @@
                     <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5">📅 日期排序</label>
                         <select id="sortFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition text-center">
-                            <option value="date_desc">⬇️ 由新到舊</option>
-                            <option value="date_asc">⬆️ 由舊到新</option>
+                            <option value="date_desc">由新到舊</option>
+                            <option value="date_asc">由舊到新</option>
                         </select>
                     </div>
                 </div>
@@ -212,7 +194,7 @@
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">2</span>
-                                <span><strong>關注議題：</strong> 使用「議題分類」選單，查看大家都在關心什麼（如：#公園綠地、#交通建設）。</span>
+                                <span><strong>關注議題：</strong> 使用「議題分類」選單，查看大家都在關心什麼。</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">3</span>
@@ -220,7 +202,6 @@
                             </li>
                         </ul>
                     </div>
-                    
                     <div>
                         <h4 class="font-bold text-white mb-3 text-sm border-b border-slate-700 pb-2 flex items-center">
                             <i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-2"></i> 關於資料完整性與解讀
@@ -232,10 +213,6 @@
                             <p>
                                 <strong>2. 數據非唯一標準：</strong> <strong>「提案通過」僅代表建議案成立，不代表行政機關已執行完成。</strong> 此外，代議士的職責還包含選民服務、預算審查、地方協調等，請勿單以提案/質詢數量的多寡來評斷優劣。
                             </p>
-                        </div>
-                        <div class="mt-3 pt-3 border-t border-slate-700 flex gap-4">
-                            <a href="https://www.hcc.gov.tw/member?lang=&program=190" target="_blank" class="text-[10px] text-blue-400 hover:text-white flex items-center gap-1 transition"><i class="fa-solid fa-external-link-alt"></i> 新竹縣議會</a>
-                            <a href="https://www.zhubei.gov.tw/jbc/" target="_blank" class="text-[10px] text-orange-400 hover:text-white flex items-center gap-1 transition"><i class="fa-solid fa-external-link-alt"></i> 竹北市民代表會</a>
                         </div>
                     </div>
                 </div>
@@ -262,14 +239,15 @@
         </div>
 
         <div id="listView" class="hidden">
-            <div id="activeFilterBanner" class="hidden bg-blue-50 text-blue-800 px-4 py-3 rounded-lg mb-4 text-xs flex justify-between items-center border border-blue-100">
-                <span><i class="fa-solid fa-filter mr-1"></i> <span id="activeFilterText">目前篩選：...</span></span>
-                <button onclick="resetFilters()" class="text-red-500 hover:text-red-700 font-bold ml-3">清除</button>
+            
+            <div id="filterStatusArea" class="hidden bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4 flex flex-wrap items-center gap-2 justify-between">
+                <div id="activeFilterTags" class="flex flex-wrap gap-2 items-center">
+                    <span class="text-xs font-bold text-slate-500 mr-1"><i class="fa-solid fa-filter"></i> 目前篩選：</span>
+                    </div>
+                <button onclick="resetFilters()" class="text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1 rounded transition border border-transparent hover:border-red-200 flex items-center gap-1">
+                    <i class="fa-solid fa-times-circle"></i> 清除所有條件
+                </button>
             </div>
-
-            <button id="backToAllBtn" onclick="resetFilters()" class="hidden btn-back-all">
-                <i class="fa-solid fa-arrow-left mr-1"></i> 返回所有資料 (清除篩選)
-            </button>
 
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
                 <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
@@ -453,14 +431,8 @@
 
             const btn = document.getElementById('filterToggleBtn');
             const isFiltering = search || type!=='all' || loc!=='竹北市' || rep!=='all' || level!=='all' || topic!=='all';
-            
-            if(isFiltering) {
-                btn.classList.add('active');
-                document.getElementById('backToAllBtn').classList.remove('hidden');
-            } else {
-                btn.classList.remove('active');
-                document.getElementById('backToAllBtn').classList.add('hidden');
-            }
+            if(isFiltering) btn.classList.add('active');
+            else btn.classList.remove('active');
 
             filteredData = rawData.filter(item => {
                 const text = (item.Subject + item.Content + (item.Tags||"")).toLowerCase();
@@ -476,6 +448,7 @@
             if (sort === 'date_desc') filteredData.sort((a, b) => b.dateObj - a.dateObj);
             if (sort === 'date_asc') filteredData.sort((a, b) => a.dateObj - b.dateObj);
 
+            updateActiveFilterBanner(search, type, loc, rep, level, topic);
             updateDashboard(filteredData);
             renderList(filteredData.slice(0, displayLimit));
             
@@ -483,6 +456,31 @@
             const moreBtn = document.getElementById('loadMoreBtn');
             if (filteredData.length > displayLimit) moreBtn.classList.remove('hidden');
             else moreBtn.classList.add('hidden');
+        }
+
+        // 🔥 新增：更新篩選狀態條
+        function updateActiveFilterBanner(search, type, loc, rep, level, topic) {
+            const banner = document.getElementById('filterStatusArea');
+            const container = document.getElementById('activeFilterTags');
+            container.innerHTML = '';
+
+            const badges = [];
+            if(search) badges.push({icon:'🔍', text:search});
+            if(loc !== '竹北市' && loc !== 'all') badges.push({icon:'🗺️', text: document.getElementById('locationFilter').selectedOptions[0].text});
+            if(type !== 'all') badges.push({icon:'📑', text:type});
+            if(rep !== 'all') badges.push({icon:'👤', text:rep});
+            if(topic !== 'all') badges.push({icon:'🏷️', text:topic});
+
+            if(badges.length > 0) {
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+                badges.forEach(b => {
+                    container.innerHTML += `<span class="text-[10px] bg-white border border-blue-200 text-blue-700 px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">${b.icon} ${b.text}</span>`;
+                });
+            } else {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
         }
 
         function renderList(data) {
