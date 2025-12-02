@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>竹北/新竹縣 議事監督平台 | 第20屆/第10屆</title>
+    <title>竹北/新竹縣 議事監督平台 | 20-10屆專區</title>
     <meta property="og:title" content="竹北/新竹縣 議事監督平台">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,14 +18,18 @@
         /* 頂部導航列 (Sticky) */
         .navbar-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
         
-        /* 搜尋框縮小 */
+        /* 搜尋框 */
         .search-input-compact { padding-top: 0.35rem; padding-bottom: 0.35rem; font-size: 0.875rem; }
         
-        /* 篩選器面板 (預設隱藏) */
+        /* 篩選器面板 */
         #filterPanel { transition: all 0.3s ease-in-out; overflow: hidden; max-height: 0; opacity: 0; background: white; border-bottom: 1px solid #e2e8f0; }
-        #filterPanel.open { max-height: 500px; opacity: 1; padding-bottom: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        #filterPanel.open { max-height: 600px; opacity: 1; padding-bottom: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         
-        /* Hero 區塊 (藍色背景) */
+        /* 免責聲明面板 */
+        #infoPanel { transition: all 0.3s ease-in-out; overflow: hidden; max-height: 0; opacity: 0; }
+        #infoPanel.open { max-height: 500px; opacity: 1; margin-top: 1rem; }
+
+        /* Hero 區塊 */
         .hero-section { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: white; }
         
         /* 卡片樣式 */
@@ -36,7 +40,7 @@
         .tag-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px; cursor: pointer; transition: opacity 0.2s; }
         .tag-badge:hover { opacity: 0.8; }
         
-        /* 手機圖表高度強制設定 */
+        /* 圖表高度 */
         .chart-container { position: relative; height: 300px; width: 100%; }
         @media (max-width: 640px) { .chart-container { height: 280px; } }
     </style>
@@ -58,15 +62,14 @@
                 </div>
 
                 <div class="flex items-center gap-2 flex-grow justify-end md:justify-center max-w-lg ml-2">
-                    <div class="relative flex-grow max-w-[200px] md:max-w-[300px]">
-                        <i class="fa-solid fa-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <div class="relative flex-grow max-w-[200px] md:max-w-[260px]"> <i class="fa-solid fa-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="searchInput" placeholder="搜尋關鍵字..." 
                                class="w-full pl-8 pr-3 py-1.5 rounded-full border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 text-xs transition search-input-compact">
                     </div>
                     
                     <button onclick="toggleFilterPanel()" id="filterToggleBtn" class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-full hover:bg-slate-50 hover:text-blue-600 transition">
                         <i class="fa-solid fa-sliders"></i>
-                        <span class="hidden md:inline">條件篩選</span>
+                        <span class="hidden md:inline">篩選</span>
                     </button>
                     
                     <button onclick="resetFilters()" class="px-2 py-1.5 text-slate-400 hover:text-red-500 transition" title="重置">
@@ -94,20 +97,31 @@
                                 <optgroup label="選區"><option value="議員東區">東區</option><option value="議員西區">西區</option></optgroup>
                             </select>
                         </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">層級</label>
+                            <select id="levelFilter" class="w-full text-xs rounded border-slate-300 py-1.5">
+                                <option value="all">🏛️ 所有層級</option>
+                            </select>
+                        </div>
+
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">類型</label>
                             <select id="typeFilter" class="w-full text-xs rounded border-slate-300 py-1.5">
-                                <option value="all">全部</option>
+                                <option value="all">📑 所有類型</option>
                                 <option value="提案">提案</option>
                                 <option value="質詢">質詢</option>
                             </select>
                         </div>
-                        <div class="col-span-2 md:col-span-2">
+                        
+                        <div class="col-span-2 md:col-span-1">
                             <label class="block text-xs font-bold text-slate-500 mb-1">代議士</label>
                             <select id="repFilter" class="w-full text-xs rounded border-slate-300 py-1.5">
-                                <option value="all">所有代議士</option>
+                                <option value="all">👤 所有代議士</option>
                             </select>
                         </div>
+
+                        <select id="sessionFilter" class="hidden"><option value="all">所有會期</option></select>
                     </div>
                 </div>
                 <div class="text-center">
@@ -128,23 +142,30 @@
                             議事資料庫
                             <span class="bg-blue-600 text-[10px] px-2 py-0.5 rounded text-white/90">2022-2026</span>
                         </h2>
-                        <div class="text-right">
-                            <span class="text-xs text-blue-200 block">本屆資料總數</span>
-                            <span class="text-2xl font-bold text-white" id="totalCount">0</span>
-                        </div>
+                        <button onclick="toggleInfo()" class="text-[10px] flex items-center gap-1 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition text-white border border-white/20 backdrop-blur-sm">
+                            <i class="fa-solid fa-circle-info"></i> <span>關於本站與聲明</span>
+                            <i class="fa-solid fa-chevron-down ml-1 text-[8px]"></i>
+                        </button>
                     </div>
                     
-                    <div class="bg-white/10 rounded-lg p-3 text-[11px] text-blue-100 leading-relaxed border border-white/10">
-                        <p class="mb-1">
-                            <i class="fa-solid fa-circle-info mr-1"></i>
-                            <strong>資料說明：</strong>本平台收錄新竹縣議會第20屆及竹北市民代表會第10屆（2022/12/25起）之公開議事紀錄。
-                        </p>
-                        <p class="opacity-80">
-                            因官方系統較封閉，本站採用自動化程式整理，內容僅供參考，完整資訊請以
-                            <a href="https://www.hcc.gov.tw/member?lang=&program=190" target="_blank" class="underline hover:text-white">縣議會</a>、
-                            <a href="https://www.zhubei.gov.tw/jbc/" target="_blank" class="underline hover:text-white">市代會</a> 
-                            官網為準。
-                        </p>
+                    <div id="infoPanel" class="bg-slate-900/80 p-4 rounded-lg text-xs border border-white/10 text-slate-300 space-y-3 backdrop-blur-md">
+                        <div class="flex justify-between items-start border-b border-slate-700 pb-2 mb-2">
+                            <h4 class="font-bold text-white">ℹ️ 資料來源與統計</h4>
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-400">本屆資料總數</span>
+                                <span class="text-base font-bold text-yellow-400 ml-1" id="totalCount">0</span>
+                            </div>
+                        </div>
+                        <ul class="list-disc list-inside space-y-1.5">
+                            <li><strong>資料區間：</strong> <span id="dateRangeInfo">載入中...</span></li>
+                            <li><strong>資料來源：</strong> 
+                                <a href="https://www.hcc.gov.tw/member?lang=&program=190" target="_blank" class="text-blue-400 hover:underline">新竹縣議會</a>、
+                                <a href="https://www.zhubei.gov.tw/jbc/" target="_blank" class="text-blue-400 hover:underline">竹北市民代表會</a>
+                            </li>
+                            <li><strong>特別聲明：</strong> 
+                                <span class="opacity-90">由於官方資訊系統較為封閉且不透明（例如 PDF 內容未結構化、缺乏開放 API），本平台使用自動化程式進行資料擷取與整理。雖已盡力確保正確，但仍可能存在解析誤差。所有資訊僅供參考，正式紀錄請以官方公告為準。</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -153,7 +174,7 @@
 
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-8">
         
-        <div id="loadingArea" class="py-10 text-center">
+        <div id="loadingArea" class="py-12 text-center">
             <div class="loading-spinner mb-3"></div>
             <p class="text-xs text-slate-400 animate-pulse">資料庫同步中...</p>
         </div>
@@ -174,19 +195,19 @@
                 <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-list-ul text-blue-600"></i> 最新紀錄
                 </h3>
-                <span class="text-xs font-medium bg-slate-200 text-slate-600 px-2 py-1 rounded-full" id="resultCountBadge">0</span>
+                <span class="text-xs font-medium bg-slate-200 text-slate-600 px-2 py-1 rounded-full" id="resultCountBadge">資料總數 0 筆</span>
             </div>
             <div id="listContainer" class="space-y-4"></div>
             <div class="text-center mt-8">
-                <button id="loadMoreBtn" class="hidden px-6 py-2 bg-white border border-slate-300 text-slate-500 rounded-full hover:bg-slate-50 text-xs transition shadow-sm" onclick="loadMore()">
-                    載入更多...
+                <button id="loadMoreBtn" class="hidden px-6 py-2.5 bg-white border border-slate-300 text-slate-500 rounded-full hover:bg-slate-50 text-xs transition shadow-sm font-medium" onclick="loadMore()">
+                    載入更多紀錄
                 </button>
             </div>
         </div>
     </main>
 
     <script>
-        // CSV 連結 (保持不變)
+        // ... (資料來源與地圖設定保持不變) ...
         const URLS = [
             'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=0&single=true&output=csv',
             'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1384163042&single=true&output=csv',
@@ -199,36 +220,39 @@
             '市代三區': ['聯興', '新社', '新國'],
             '市代四區': ['大義', '白地', '新港', '溪州', '麻園', '新庄', '大眉', '尚義', '崇義']
         };
-        
+
         const ZONE_CONFIG = {
             '市代一區': [...VILLAGE_MAP['市代一區'], '高鐵', '體育場', '文興路'],
             '市代二區': [...VILLAGE_MAP['市代二區'], '縣政', '家樂福', '光明六路', '博愛國中'],
             '市代三區': [...VILLAGE_MAP['市代三區'], '中正西路', '竹北國中', '新社國小', '夜市'],
             '市代四區': [...VILLAGE_MAP['市代四區'], '鳳岡', '水月', '濱海'],
-            '議員西區': [...VILLAGE_MAP['市代三區'], ...VILLAGE_MAP['市代四區'], '新崙', '竹義', '泰和', '鳳岡', '中正西路'],
-            '議員東區': [...VILLAGE_MAP['市代一區'], '斗崙', '竹北里', '竹仁', '北崙', '中崙', '福德', '高鐵', '縣政'],
+            '議員西區': [...VILLAGE_MAP['市代三區'], ...VILLAGE_MAP['市代四區'], '新崙', '竹義', '泰和', '鳳岡', '中正西路', '西區'],
+            '議員東區': [...VILLAGE_MAP['市代一區'], '斗崙', '竹北里', '竹仁', '北崙', '中崙', '福德', '高鐵', '縣政', '東區'],
             '竹北市': ['竹北', '市公所', '縣政', '高鐵', '中正西路', '光明六路'],
             '校園': ['校', '國小', '國中', '高中', '大學', '通學', '教育'],
-            '其他鄉鎮': ['竹東', '湖口', '新豐', '寶山', '關西', '芎林', '新埔', '橫山', '北埔']
+            '其他鄉鎮': ['竹東', '湖口', '新豐', '寶山', '關西', '芎林', '新埔', '橫山', '北埔', '尖石', '五峰', '峨眉']
         };
 
         let rawData = [], filteredData = [], displayLimit = 20;
         let topicChart = null, repChart = null;
 
-        // 篩選面板開關
-        function toggleFilterPanel() {
-            const panel = document.getElementById('filterPanel');
-            panel.classList.toggle('open');
-        }
+        // 互動邏輯
+        function toggleFilterPanel() { document.getElementById('filterPanel').classList.toggle('open'); }
+        function toggleInfo() { document.getElementById('infoPanel').classList.toggle('open'); }
+        
+        // 🔥 捲動自動收合免責聲明
+        window.addEventListener('scroll', () => {
+            const infoPanel = document.getElementById('infoPanel');
+            if (window.scrollY > 100 && infoPanel.classList.contains('open')) {
+                infoPanel.classList.remove('open');
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             initVillageSelector();
-            
-            // 監聽篩選器
-            ['searchInput', 'locationFilter', 'typeFilter', 'repFilter'].forEach(id => {
+            ['searchInput', 'locationFilter', 'typeFilter', 'repFilter', 'levelFilter'].forEach(id => {
                 document.getElementById(id).addEventListener('input', (e) => {
-                    // 如果動了地區，清空里別
                     if(id === 'locationFilter') document.getElementById('myVillageFilter').value = "";
                     filterAndRender();
                 });
@@ -255,7 +279,6 @@
                     const zone = select.options[select.selectedIndex].dataset.zone;
                     document.getElementById('searchInput').value = vName;
                     document.getElementById('locationFilter').value = zone;
-                    // 選完自動收合面板
                     document.getElementById('filterPanel').classList.remove('open');
                 } else {
                     document.getElementById('searchInput').value = "";
@@ -291,6 +314,11 @@
                 document.getElementById('loadingArea').classList.add('hidden');
                 document.getElementById('chartsView').classList.remove('hidden');
                 document.getElementById('listView').classList.remove('hidden');
+                if(rawData.length > 0) {
+                    const d1 = rawData[0].Date || '最新';
+                    const d2 = rawData[rawData.length-1].Date || '最舊';
+                    document.getElementById('dateRangeInfo').innerText = `${d2} ~ ${d1}`;
+                }
             });
         }
 
@@ -303,23 +331,26 @@
                 opt.value = r; opt.text = `${r} ${p ? p.RepTitle : ''}`;
                 sel.appendChild(opt);
             });
+            
+            // 🔥 恢復層級篩選
+            const levels = [...new Set(data.map(i => i.Level))].filter(l => l);
+            const levelSelect = document.getElementById('levelFilter');
+            levels.forEach(l => {
+                const opt = document.createElement('option'); opt.value = l; opt.text = `🏛️ ${l}`; levelSelect.appendChild(opt);
+            });
         }
 
         function checkLocation(item, loc) {
             const content = (item.Location + item.Content + item.Subject + (item.Tags||"")).toLowerCase();
             if (loc === 'all') return true;
-            
             if (loc === '竹北市' || loc === '議員東區' || loc === '議員西區') {
                 const keywords = (loc === '竹北市') ? ZONE_CONFIG['竹北市'] : ZONE_CONFIG[loc];
                 const hasKeyword = keywords.some(k => content.includes(k));
                 const otherTowns = ZONE_CONFIG['其他鄉鎮'];
                 const isOther = otherTowns.some(t => content.includes(t) && !content.includes('竹北'));
-                
-                // 市代會必定在竹北
                 if (item.Level && item.Level.includes('代表')) return true;
                 return hasKeyword && !isOther;
             }
-            
             if (ZONE_CONFIG[loc]) return ZONE_CONFIG[loc].some(k => content.includes(k));
             return true;
         }
@@ -329,6 +360,7 @@
             const type = document.getElementById('typeFilter').value;
             const loc = document.getElementById('locationFilter').value;
             const rep = document.getElementById('repFilter').value;
+            const level = document.getElementById('levelFilter').value;
 
             filteredData = rawData.filter(item => {
                 const text = (item.Subject + item.Content + (item.Tags||"")).toLowerCase();
@@ -336,12 +368,14 @@
                 const matchType = type === 'all' || item.Type === type;
                 const matchRep = rep === 'all' || item.Rep_Name === rep;
                 const matchLoc = checkLocation(item, loc);
-                return matchSearch && matchType && matchRep && matchLoc;
+                const matchLevel = level === 'all' || item.Level === level;
+                return matchSearch && matchType && matchRep && matchLoc && matchLevel;
             });
 
             updateDashboard(filteredData);
             renderList(filteredData.slice(0, displayLimit));
-            document.getElementById('resultCountBadge').innerText = filteredData.length;
+            // 🔥 更新計數器
+            document.getElementById('resultCountBadge').innerText = `資料總數 ${filteredData.length} 筆`;
             
             const moreBtn = document.getElementById('loadMoreBtn');
             if (filteredData.length > displayLimit) moreBtn.classList.remove('hidden');
@@ -351,28 +385,21 @@
         function renderList(data) {
             const container = document.getElementById('listContainer');
             container.innerHTML = '';
-            
             if(data.length === 0) {
                 container.innerHTML = `<div class="text-center py-8 text-slate-400">無符合資料</div>`;
                 return;
             }
-
             data.forEach(item => {
                 let typeClass = 'bg-slate-100 text-slate-600';
-                if(item.Type === '提案') typeClass = 'bg-blue-100 text-blue-600';
-                if(item.Type === '質詢') typeClass = 'bg-orange-100 text-orange-600';
-                
-                // 統一屆次
+                if(item.Type === '提案') typeClass = 'bg-blue-50 text-blue-600 border border-blue-100';
+                if(item.Type === '質詢') typeClass = 'bg-orange-50 text-orange-600 border border-orange-100';
                 let sessionStr = item.Level.includes("議會") ? "縣議會第20屆" : "市代會第10屆";
                 
-                // 內容截斷
                 const isLong = item.Content && item.Content.length > 100;
                 const contentDisplay = isLong ? item.Content.substring(0, 100) + '...' : item.Content;
                 const expandHtml = isLong ? `<span class="text-blue-500 cursor-pointer ml-2 text-xs" onclick="this.parentElement.nextElementSibling.classList.remove('hidden');this.parentElement.classList.add('hidden')">展開</span>` : '';
                 const fullHtml = isLong ? `<div class="hidden mt-2 text-sm text-slate-700 bg-slate-50 p-3 rounded">${item.Content}</div>` : '';
-
-                const linkHtml = item.Source && item.Source.startsWith('http') 
-                    ? `<a href="${item.Source}" target="_blank" class="text-xs text-slate-400 hover:text-blue-600"><i class="fa-solid fa-link"></i> 原始文件</a>` : '';
+                const linkHtml = item.Source && item.Source.startsWith('http') ? `<a href="${item.Source}" target="_blank" class="text-xs text-slate-400 hover:text-blue-600"><i class="fa-solid fa-link"></i> 原始文件</a>` : '';
 
                 const html = `
                     <div class="card p-4">
@@ -384,16 +411,10 @@
                             </div>
                             ${linkHtml}
                         </div>
-                        <h4 class="font-bold text-slate-800 mb-2 cursor-pointer hover:text-blue-700" onclick="toggleSubject(this)">${item.Subject}</h4>
-                        <div class="text-xs text-blue-800 font-bold mb-3 cursor-pointer" onclick="setRep('${item.Rep_Name}')">
-                            <i class="fa-solid fa-user mr-1"></i>${item.Rep_Name} ${item.RepTitle}
-                        </div>
-                        
-                        <div class="text-sm text-slate-600">
-                            ${contentDisplay} ${expandHtml}
-                        </div>
+                        <h4 class="font-bold text-slate-800 mb-2 cursor-pointer hover:text-blue-700" onclick="this.classList.toggle('line-clamp-2')">${item.Subject}</h4>
+                        <div class="text-xs text-blue-800 font-bold mb-3 cursor-pointer" onclick="setRep('${item.Rep_Name}')"><i class="fa-solid fa-user mr-1"></i>${item.Rep_Name} ${item.RepTitle}</div>
+                        <div class="text-sm text-slate-600">${contentDisplay} ${expandHtml}</div>
                         ${fullHtml}
-
                         <div class="mt-3 pt-2 border-t border-slate-50 flex flex-wrap gap-1">
                              ${item.tagList.map(t => `<span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded cursor-pointer hover:bg-blue-100" onclick="quickSearch('${t}')">#${t}</span>`).join('')}
                         </div>
@@ -405,13 +426,16 @@
 
         function updateDashboard(data) {
             document.getElementById('totalCount').innerText = data.length;
-            if(window.innerWidth < 1) return; // 避免在極小視窗出錯
+            if(window.innerWidth < 1) return;
 
             const tags = {};
             const reps = {};
             data.forEach(d => {
                 d.tagList.forEach(t => tags[t] = (tags[t]||0)+1);
-                reps[d.Rep_Name] = (reps[d.Rep_Name]||0)+1;
+                // 🔥 修正 undefined 問題：過濾無效代議士名
+                if(d.Rep_Name && d.Rep_Name !== 'undefined' && d.Rep_Name !== '未知') {
+                    reps[d.Rep_Name] = (reps[d.Rep_Name]||0)+1;
+                }
             });
 
             const sortedTags = Object.entries(tags).sort((a,b)=>b[1]-a[1]).slice(0,8);
@@ -434,36 +458,28 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { position: 'right', labels: {boxWidth:10, font:{size:10}} } },
-                    onClick: (e, el) => { if(el.length>0) quickSearch(window[id].data.labels[el[0].index]); }
+                    onClick: (e, el) => { if(el.length>0) {
+                        if(id==='repChart') setRep(window[id].data.labels[el[0].index]);
+                        else quickSearch(window[id].data.labels[el[0].index]);
+                    }}
                 }
             });
         }
 
-        function quickSearch(k) {
-            document.getElementById('searchInput').value = k;
-            document.getElementById('searchInput').dispatchEvent(new Event('input'));
-        }
-        function setRep(name) {
-            document.getElementById('repFilter').value = name;
-            document.getElementById('repFilter').dispatchEvent(new Event('input'));
-        }
+        function quickSearch(k) { document.getElementById('searchInput').value = k; filterAndRender(); window.scrollTo({top:0}); }
+        function setRep(n) { document.getElementById('repFilter').value = n; filterAndRender(); window.scrollTo({top:0}); }
         function resetFilters() {
             document.getElementById('searchInput').value = "";
             document.getElementById('myVillageFilter').value = "";
             document.getElementById('locationFilter').value = "竹北市";
             document.getElementById('repFilter').value = "all";
             document.getElementById('typeFilter').value = "all";
+            document.getElementById('levelFilter').value = "all";
             filterAndRender();
         }
-        function loadMore() {
-            displayLimit += 20;
-            renderList(filteredData.slice(0, displayLimit));
-            if(displayLimit >= filteredData.length) document.getElementById('loadMoreBtn').classList.add('hidden');
-        }
-        function toggleSubject(el) { el.classList.toggle('line-clamp-2'); }
+        function loadMore() { displayLimit += 20; renderList(filteredData.slice(0, displayLimit)); if(displayLimit >= filteredData.length) document.getElementById('loadMoreBtn').classList.add('hidden'); }
     </script>
 </body>
 </html>
