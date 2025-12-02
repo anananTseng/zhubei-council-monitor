@@ -16,45 +16,51 @@
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
         
         /* 導航列 */
-        .navbar-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .navbar-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         
         /* Hero 區塊 */
-        .hero-section { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .hero-section { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: white; padding-top: 0.75rem; padding-bottom: 0.75rem; }
         
-        /* 篩選按鈕 */
+        /* 🔥 超級醒目的篩選按鈕 */
         .btn-filter-toggle { 
-            background-color: #2563eb; color: white; border: 1px solid #1d4ed8;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); 
+            background-color: #1e40af; /* 深藍 */
+            color: white; 
+            border: 2px solid #1e40af;
+            box-shadow: 0 4px 6px rgba(30, 64, 175, 0.3); 
             transition: all 0.2s; 
+            padding-left: 1.25rem; padding-right: 1.25rem; /* 加寬 */
         }
-        .btn-filter-toggle:hover { background-color: #1d4ed8; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); transform: translateY(-1px); }
-        .btn-filter-toggle.active { background-color: #f59e0b; border-color: #d97706; color: white; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3); }
+        .btn-filter-toggle:hover { background-color: #1e3a8a; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(30, 64, 175, 0.4); }
+        .btn-filter-toggle.active { background-color: #f59e0b; border-color: #f59e0b; color: white; }
+        .btn-filter-toggle i { color: #fcd34d; } /* 黃色圖示 */
 
-        /* 清除按鈕 */
+        /* 🔥 直觀的清除按鈕 */
         .btn-reset {
-            background-color: white; color: #dc2626; border: 1px solid #fca5a5;
-            transition: all 0.2s; font-weight: 500;
+            background-color: white; color: #dc2626; border: 2px solid #fecaca;
+            transition: all 0.2s; font-weight: 600;
         }
-        .btn-reset:hover { background-color: #fee2e2; border-color: #ef4444; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.15); }
+        .btn-reset:hover { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; }
 
         /* 篩選面板 */
         #filterPanel { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; max-height: 0; opacity: 0; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
-        #filterPanel.open { max-height: 800px; opacity: 1; padding-bottom: 1rem; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.05); }
+        #filterPanel.open { max-height: 800px; opacity: 1; padding-bottom: 1.5rem; box-shadow: inset 0 -2px 6px rgba(0,0,0,0.05); }
         
         /* 卡片樣式 */
-        .card { background: white; border-radius: 0.5rem; border: 1px solid #e2e8f0; transition: transform 0.2s; position: relative; overflow: hidden; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-color: #cbd5e1; }
-        .card-proposal { background: #f0f9ff; border-left: 3px solid #3b82f6; }
-        .card-interpellation { background: #fff7ed; border-left: 3px solid #f97316; }
+        .card { background: white; border-radius: 0.75rem; border: 1px solid #e2e8f0; transition: transform 0.2s; position: relative; overflow: hidden; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.1); border-color: #94a3b8; }
+        .card-proposal { border-left: 5px solid #3b82f6; }
+        .card-interpellation { border-left: 5px solid #f97316; }
 
-        /* 按鈕與標籤 */
-        .btn-source { background: white; border: 1px solid #94a3b8; color: #475569; font-size: 0.7rem; padding: 3px 10px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+        /* 原始文件按鈕 */
+        .btn-source { background: white; border: 1px solid #94a3b8; color: #475569; font-size: 0.7rem; padding: 4px 12px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
         .btn-source:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
-        .tag-badge { font-size: 0.75rem; padding: 1px 8px; border-radius: 9999px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.05); }
-        .tag-badge:hover { background: white; transform: scale(1.05); }
+
+        /* 標籤 */
+        .tag-badge { font-size: 0.75rem; padding: 2px 10px; border-radius: 9999px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.8); border: 1px solid #e2e8f0; font-weight: 500; }
+        .tag-badge:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 
         /* 聲明面板 */
-        #infoPanel { display: none; border-top: 2px solid #fbbf24; }
+        #infoPanel { display: none; border-top: 3px solid #fbbf24; }
         #infoPanel.open { display: block; animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -66,54 +72,60 @@
 
     <nav class="navbar-sticky">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-14">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
-                    <div class="bg-slate-800 text-white w-8 h-8 flex items-center justify-center rounded shadow-sm">
-                        <i class="fa-solid fa-landmark"></i>
+            <div class="flex items-center justify-between h-16"> <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+                    <div class="bg-slate-800 text-white w-9 h-9 flex items-center justify-center rounded-lg shadow-lg">
+                        <i class="fa-solid fa-gavel text-lg"></i>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-sm font-bold leading-none text-slate-900">竹北議事</span>
+                        <span class="text-base font-bold leading-none text-slate-900">竹北議事</span>
                         <span class="text-[10px] text-slate-500 font-medium mt-0.5">監督平台 (20-10屆)</span>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 flex-grow justify-end max-w-xl">
-                    <div class="relative w-28 md:w-40 lg:w-56">
-                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="searchInput" placeholder="搜尋..." class="w-full pl-8 pr-3 py-1.5 rounded-full border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition">
+                <div class="flex items-center gap-3">
+                    <div class="relative w-32 md:w-56 hidden sm:block">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="searchInput" placeholder="輸入關鍵字..." 
+                               class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition">
+                    </div>
+                    <div class="relative w-24 sm:hidden">
+                        <input type="text" id="searchInputMobile" placeholder="搜尋..." 
+                               class="w-full pl-2 pr-2 py-1.5 rounded-lg border border-slate-300 text-xs" oninput="document.getElementById('searchInput').value=this.value; document.getElementById('searchInput').dispatchEvent(new Event('input'));">
                     </div>
                     
-                    <button onclick="toggleFilterPanel()" id="filterToggleBtn" class="btn-filter-toggle flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">
-                        <i class="fa-solid fa-filter"></i> 篩選
+                    <button onclick="toggleFilterPanel()" id="filterToggleBtn" class="btn-filter-toggle flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold shadow-md">
+                        <i class="fa-solid fa-sliders"></i> 
+                        <span>篩選條件</span>
                     </button>
                     
-                    <button onclick="resetFilters()" class="btn-reset flex items-center gap-1 px-3 py-1.5 rounded-full text-xs shadow-sm" title="清除所有條件">
+                    <button onclick="resetFilters()" class="btn-reset flex items-center gap-1 px-3 py-2 rounded-lg text-xs shadow-sm" title="清除所有條件">
                         <i class="fa-solid fa-trash-can"></i> <span class="hidden md:inline">清除</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <div id="filterPanel" class="absolute w-full left-0 top-14 z-40">
-            <div class="max-w-7xl mx-auto px-4 py-4 bg-slate-50">
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                    <div class="bg-white p-2 rounded border border-slate-200">
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">📍 居住地</label>
-                        <select id="myVillageFilter" class="w-full text-xs rounded border-slate-300 py-1.5 cursor-pointer hover:bg-slate-50">
-                            <option value="">-- 選擇里別 --</option>
+        <div id="filterPanel" class="absolute w-full left-0 top-16 z-40">
+            <div class="max-w-7xl mx-auto px-4 py-6 bg-slate-50 border-b border-slate-200 shadow-inner">
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div class="col-span-2 md:col-span-1 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                        <label class="block text-[11px] font-bold text-blue-600 mb-1.5 uppercase tracking-wider">📍 您住在哪裡？</label>
+                        <select id="myVillageFilter" class="w-full text-sm rounded border-slate-300 py-2 bg-blue-50 text-blue-900 border-blue-200 focus:ring-blue-500 cursor-pointer font-medium">
+                            <option value="">-- 選擇里別 (自動定位) --</option>
                         </select>
                     </div>
 
-                    <div class="bg-white p-2 rounded border border-slate-200">
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">🗺️ 區域/選區</label>
-                        <select id="locationFilter" class="w-full text-xs rounded border-slate-300 py-1.5 cursor-pointer hover:bg-slate-50">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">🗺️ 區域/選區</label>
+                        <select id="locationFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition">
                             <option value="竹北市" selected>🏠 竹北市 (預設)</option>
                             <option value="all">🌏 全區域</option>
                             <optgroup label="竹北市代選區">
-                                <option value="市代一區">第1選區 (東區/高鐵)</option>
-                                <option value="市代二區">第2選區 (舊市區)</option>
-                                <option value="市代三區">第3選區 (西區)</option>
-                                <option value="市代四區">第4選區 (鳳岡/麻園)</option>
+                                <option value="市代一區">第1選區</option>
+                                <option value="市代二區">第2選區</option>
+                                <option value="市代三區">第3選區</option>
+                                <option value="市代四區">第4選區</option>
                             </optgroup>
                             <optgroup label="縣議員選區">
                                 <option value="議員東區">東區 (鐵路以東)</option>
@@ -126,15 +138,15 @@
                         </select>
                     </div>
 
-                    <div class="bg-white p-2 rounded border border-slate-200">
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">🏷️ 議題分類</label>
-                        <select id="topicFilter" class="w-full text-xs rounded border-slate-300 py-1.5 cursor-pointer hover:bg-slate-50">
+                    <div class="col-span-1 md:col-span-1">
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">🏷️ 議題分類</label>
+                        <select id="topicFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition">
                             <option value="all">所有議題</option>
-                        </select>
+                            </select>
                     </div>
 
-                    <div class="bg-white p-2 rounded border border-slate-200">
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">📑 屬性篩選</label>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">📑 屬性</label>
                         <div class="flex gap-1">
                             <select id="typeFilter" class="w-1/2 text-xs rounded border-slate-300 py-1.5 cursor-pointer">
                                 <option value="all">類型</option>
@@ -147,83 +159,85 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-2 rounded border border-slate-200">
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">👤 對象/排序</label>
-                        <div class="flex gap-1">
-                            <select id="repFilter" class="w-1/2 text-xs rounded border-slate-300 py-1.5 cursor-pointer">
-                                <option value="all">代議士</option>
-                            </select>
-                            <select id="sortFilter" class="w-1/2 text-xs rounded border-slate-300 py-1.5 cursor-pointer">
-                                <option value="date_desc">新→舊</option>
-                                <option value="date_asc">舊→新</option>
-                            </select>
-                        </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">👤 代議士</label>
+                        <select id="repFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition">
+                            <option value="all">所有代議士</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5">📅 日期排序</label>
+                        <select id="sortFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition text-center">
+                            <option value="date_desc">⬇️ 由新到舊</option>
+                            <option value="date_asc">⬆️ 由舊到新</option>
+                        </select>
                     </div>
                 </div>
                 
-                <div class="text-center pt-2">
-                    <button onclick="toggleFilterPanel()" class="text-xs text-slate-400 hover:text-blue-600 transition flex items-center justify-center w-full">
-                        <i class="fa-solid fa-chevron-up mr-1"></i> 收起面板
+                <div class="text-center pt-4 mt-2 border-t border-slate-200">
+                    <button onclick="toggleFilterPanel()" class="text-xs text-slate-500 hover:text-blue-600 transition flex items-center justify-center w-full font-medium">
+                        <i class="fa-solid fa-chevron-up mr-1"></i> 收起篩選面板
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="hero-section px-4 shadow-inner">
+    <div class="hero-section px-4 shadow-md relative z-30">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-center gap-2">
                 <div class="flex items-center gap-3">
-                    <div class="text-xs font-medium opacity-90">
-                        <i class="fa-solid fa-database mr-1 text-yellow-400"></i>
-                        資料庫收錄 <span class="text-yellow-300 font-bold mx-1" id="totalCount">0</span> 筆
+                    <div class="text-xs font-medium opacity-90 flex items-center bg-slate-800/50 px-3 py-1 rounded-lg border border-white/10">
+                        <i class="fa-solid fa-database mr-2 text-yellow-400"></i>
+                        資料庫收錄 <span class="text-yellow-300 font-bold mx-1 text-sm" id="totalCount">0</span> 筆
                     </div>
                     <div class="h-4 w-px bg-white/20"></div>
                     <div class="text-[10px] opacity-70">2022/12/25 至今</div>
                 </div>
-                <button onclick="toggleInfo()" class="text-[10px] bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded transition flex items-center gap-1 border border-white/10 backdrop-blur-sm">
-                    <i class="fa-solid fa-book"></i> 資料來源與重要聲明 <i class="fa-solid fa-caret-down ml-1"></i>
+                <button onclick="toggleInfo()" class="text-[10px] bg-white/10 hover:bg-white/20 text-white px-4 py-1.5 rounded-full transition flex items-center gap-1.5 border border-white/20 backdrop-blur-sm font-medium shadow-sm">
+                    <i class="fa-solid fa-circle-info text-yellow-300"></i> 關於本站與操作指南 <i class="fa-solid fa-caret-down ml-1 opacity-70"></i>
                 </button>
             </div>
 
-            <div id="infoPanel" class="bg-slate-900 text-slate-300 text-xs p-4 rounded-b-lg mt-3 shadow-xl">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div id="infoPanel" class="bg-slate-900 text-slate-300 text-xs p-5 rounded-b-xl mt-3 shadow-2xl border-x border-b border-slate-700/50">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <h4 class="font-bold text-white mb-2 text-sm border-b border-slate-700 pb-1">
-                            <i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-1"></i> 關於本站與數位化現狀
+                        <h4 class="font-bold text-white mb-3 text-sm border-b border-slate-700 pb-2 flex items-center">
+                            <i class="fa-solid fa-book-open text-green-400 mr-2"></i> 簡易操作指南
                         </h4>
-                        <p class="leading-relaxed opacity-90 mb-3 text-justify">
-                            本平台資料皆自動抓取自政府公開網站。然而，目前<strong>新竹縣議會與竹北市民代表會的數位化程度皆有待提升</strong>，缺乏結構化的開放資料 (Open Data) 系統。
-                        </p>
-                        <p class="leading-relaxed opacity-90 mb-2 text-justify">
-                            相較之下，<strong>竹北市民代表會的資訊公開介面更為傳統與封閉</strong>，這使得資料取得面臨極大挑戰。您可能會在部分內容中看到<strong>生硬的斷行或排版瑕疵</strong>，請理解這是為了確保資料<strong>「原汁原味、未經人工變造」</strong>的鐵證。
-                        </p>
+                        <ul class="list-none space-y-2.5 opacity-90">
+                            <li class="flex items-start gap-2">
+                                <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">1</span>
+                                <span><strong>鎖定選區：</strong> 在上方「居住地」選擇您的里別，系統會自動篩選出相關的代議士。</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">2</span>
+                                <span><strong>關注議題：</strong> 使用「議題分類」選單，查看大家都在關心什麼（如：#公園綠地、#交通建設）。</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">3</span>
+                                <span><strong>深度追蹤：</strong> 點擊卡片上的「代議士名字」可查看其所有提案；點擊「原始文件」可下載 PDF。</span>
+                            </li>
+                        </ul>
                     </div>
                     
                     <div>
-                        <h4 class="font-bold text-white mb-2 text-sm border-b border-slate-700 pb-1">
-                            <i class="fa-solid fa-lightbulb text-yellow-400 mr-1"></i> 數據解讀提醒
+                        <h4 class="font-bold text-white mb-3 text-sm border-b border-slate-700 pb-2 flex items-center">
+                            <i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-2"></i> 關於資料完整性的誠實聲明
                         </h4>
-                        <div class="bg-slate-800/50 p-2 rounded border border-slate-700 mb-3">
-                            <p class="leading-relaxed opacity-90 text-justify">
-                                <strong>提案與質詢的數量，並非評斷代議士表現的唯一標準。</strong><br>
-                                民意代表的職責還包含選民服務、預算審查、地方協調等多重面向，部分貢獻難以完全量化。請使用者客觀看待數據，避免單以「數量多寡」定論。
+                        <div class="space-y-2 text-justify opacity-90 leading-relaxed">
+                            <p>
+                                本平台資料透過程式自動化抓取自政府公開網站。然而，目前<strong>新竹縣議會與竹北市民代表會的數位化程度皆有待提升</strong>，缺乏結構化的開放資料 (Open Data) 系統。
+                            </p>
+                            <p>
+                                相較之下，<strong>竹北市民代表會的資訊公開介面更為傳統與封閉</strong>，這使得資料取得面臨極大挑戰。您可能會在部分內容中看到<strong>生硬的斷行或排版瑕疵</strong>，請理解這是為了確保資料<strong>「原汁原味、未經人工變造」</strong>的鐵證。
                             </p>
                         </div>
-                        
-                        <h4 class="font-bold text-white mb-1 text-[11px] opacity-80">相關官方連結：</h4>
-                        <ul class="flex gap-3">
-                            <li>
-                                <a href="https://www.hcc.gov.tw/member?lang=&program=190" target="_blank" class="flex items-center hover:text-white transition group">
-                                    <i class="fa-solid fa-link text-[10px] mr-1 text-blue-400"></i> 新竹縣議會
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://www.zhubei.gov.tw/jbc/" target="_blank" class="flex items-center hover:text-white transition group">
-                                    <i class="fa-solid fa-link text-[10px] mr-1 text-orange-400"></i> 竹北市代會
-                                </a>
-                            </li>
-                        </ul>
+                        <div class="mt-3 pt-3 border-t border-slate-700 flex gap-4">
+                            <a href="https://www.hcc.gov.tw/member?lang=&program=190" target="_blank" class="text-[10px] text-blue-400 hover:text-white flex items-center gap-1 transition"><i class="fa-solid fa-external-link-alt"></i> 新竹縣議會</a>
+                            <a href="https://www.zhubei.gov.tw/jbc/" target="_blank" class="text-[10px] text-orange-400 hover:text-white flex items-center gap-1 transition"><i class="fa-solid fa-external-link-alt"></i> 竹北市民代表會</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -393,6 +407,7 @@
             levels.forEach(l => {
                 const opt = document.createElement('option'); opt.value = l; opt.text = `🏛️ ${l}`; levelSelect.appendChild(opt);
             });
+
             const allTags = {};
             data.forEach(d => d.tagList.forEach(t => allTags[t] = (allTags[t]||0)+1));
             const sortedTags = Object.keys(allTags).sort((a,b) => allTags[b] - allTags[a]);
@@ -451,8 +466,8 @@
 
             updateDashboard(filteredData);
             renderList(filteredData.slice(0, displayLimit));
-            
             document.getElementById('resultCountBadge').innerText = `${filteredData.length} 筆`;
+            
             const moreBtn = document.getElementById('loadMoreBtn');
             if (filteredData.length > displayLimit) moreBtn.classList.remove('hidden');
             else moreBtn.classList.add('hidden');
@@ -475,8 +490,8 @@
                 const contentDisplay = isLong ? item.Content.substring(0, 100) + '...' : item.Content;
                 const expandHtml = isLong ? `<span class="text-blue-500 cursor-pointer ml-2 text-xs font-bold" onclick="this.parentElement.nextElementSibling.classList.remove('hidden');this.parentElement.classList.add('hidden')">展開全文</span>` : '';
                 const fullHtml = isLong ? `<div class="hidden mt-2 text-sm text-slate-700 bg-white p-3 rounded border border-slate-100 leading-relaxed">${item.Content}</div>` : '';
-                const linkBtn = item.PDF_Url || (item.Source && item.Source.startsWith('http') ? item.Source : '');
-                const linkHtml = linkBtn ? `<a href="${linkBtn}" target="_blank" class="btn-source"><i class="fa-solid fa-file-lines"></i> 原始文件</a>` : '';
+                const linkHtml = item.Source && item.Source.startsWith('http') 
+                    ? `<a href="${item.Source}" target="_blank" class="btn-source"><i class="fa-solid fa-file-pdf"></i> 原始文件</a>` : '';
 
                 let secondLine = "";
                 if (item.Target_Unit && item.Target_Unit !== '-') {
@@ -567,6 +582,7 @@
             filterAndRender();
         }
         function loadMore() { displayLimit += 20; renderList(filteredData.slice(0, displayLimit)); if(displayLimit >= filteredData.length) document.getElementById('loadMoreBtn').classList.add('hidden'); }
+        function toggleSubject(el) { el.classList.toggle('subject-truncate'); }
     </script>
 </body>
 </html>
