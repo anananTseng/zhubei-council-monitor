@@ -14,14 +14,9 @@
     
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
-        
-        /* 導航列 */
         .navbar-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        /* Hero 區塊 */
         .hero-section { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding-top: 0.75rem; padding-bottom: 0.75rem; }
         
-        /* 按鈕樣式 */
         .btn-filter-toggle { 
             background-color: #1e40af; color: white; border: 2px solid #1e40af;
             box-shadow: 0 4px 6px rgba(30, 64, 175, 0.3); 
@@ -30,25 +25,25 @@
         .btn-filter-toggle:hover { background-color: #1e3a8a; transform: translateY(-1px); }
         .btn-filter-toggle.active { background-color: #f59e0b; border-color: #f59e0b; color: white; }
 
-        /* 篩選面板 */
+        .btn-reset {
+            background-color: white; color: #dc2626; border: 2px solid #fecaca;
+            transition: all 0.2s; font-weight: 600;
+        }
+        .btn-reset:hover { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+
         #filterPanel { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; max-height: 0; opacity: 0; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
         #filterPanel.open { max-height: 800px; opacity: 1; padding-bottom: 1.5rem; box-shadow: inset 0 -2px 6px rgba(0,0,0,0.05); }
         
-        /* 卡片樣式 */
         .card { background: white; border-radius: 0.75rem; border: 1px solid #e2e8f0; transition: transform 0.2s; position: relative; overflow: hidden; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.1); border-color: #94a3b8; }
         .card-proposal { border-left: 5px solid #3b82f6; }
         .card-interpellation { border-left: 5px solid #f97316; }
 
-        /* 原始文件按鈕 */
         .btn-source { background: white; border: 1px solid #94a3b8; color: #475569; font-size: 0.7rem; padding: 4px 12px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
         .btn-source:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
-
-        /* 標籤 */
         .tag-badge { font-size: 0.75rem; padding: 2px 10px; border-radius: 9999px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.8); border: 1px solid #e2e8f0; font-weight: 500; }
         .tag-badge:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 
-        /* 聲明面板 */
         #infoPanel { display: none; border-top: 3px solid #fbbf24; }
         #infoPanel.open { display: block; animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -78,10 +73,18 @@
                         <input type="text" id="searchInput" placeholder="輸入關鍵字..." 
                                class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition">
                     </div>
+                    <div class="relative w-24 sm:hidden">
+                        <input type="text" id="searchInputMobile" placeholder="搜尋..." 
+                               class="w-full pl-2 pr-2 py-1.5 rounded-lg border border-slate-300 text-xs" oninput="document.getElementById('searchInput').value=this.value; document.getElementById('searchInput').dispatchEvent(new Event('input'));">
+                    </div>
                     
                     <button onclick="toggleFilterPanel()" id="filterToggleBtn" class="btn-filter-toggle flex items-center gap-1.5 rounded-full text-sm font-bold shadow-md">
                         <i class="fa-solid fa-sliders"></i> 
                         <span>篩選條件</span>
+                    </button>
+                    
+                    <button onclick="resetFilters()" class="btn-reset flex items-center gap-1 px-3 py-2 rounded-lg text-xs shadow-sm" title="清除所有條件">
+                        <i class="fa-solid fa-rotate-left"></i> <span class="hidden md:inline">清除重置</span>
                     </button>
                 </div>
             </div>
@@ -190,15 +193,15 @@
                         <ul class="list-none space-y-2.5 opacity-90">
                             <li class="flex items-start gap-2">
                                 <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">1</span>
-                                <span><strong>鎖定選區：</strong> 在上方「居住地」選擇您的里別，系統會自動篩選出相關的代議士。</span>
+                                <span><strong>鎖定選區：</strong> 選擇「居住地」或「區域」，系統會自動過濾出與該區相關的提案。注意：若選擇特定竹北選區，系統會自動排除外鄉鎮（如新豐、湖口）的資料，除非該提案明確提到竹北。</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">2</span>
-                                <span><strong>關注議題：</strong> 使用「議題分類」選單，查看大家都在關心什麼。</span>
+                                <span><strong>關注議題：</strong> 使用「議題分類」選單，查看您關心的主題（如：#公園綠地、#交通建設）。</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="bg-blue-900 text-blue-200 px-1.5 rounded text-[10px] mt-0.5">3</span>
-                                <span><strong>深度追蹤：</strong> 點擊卡片上的「代議士名字」可查看其所有提案；點擊「原始文件」可下載 PDF。</span>
+                                <span><strong>深度追蹤：</strong> 點擊卡片上的「代議士名字」可查看其所有提案；點擊「原始文件」可下載官方 PDF。</span>
                             </li>
                         </ul>
                     </div>
@@ -213,6 +216,10 @@
                             <p>
                                 <strong>2. 數據非唯一標準：</strong> <strong>「提案通過」僅代表建議案成立，不代表行政機關已執行完成。</strong> 此外，代議士的職責還包含選民服務、預算審查、地方協調等，請勿單以提案/質詢數量的多寡來評斷優劣。
                             </p>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-slate-700 flex gap-4">
+                            <a href="https://www.hcc.gov.tw/member?lang=&program=190" target="_blank" class="text-[10px] text-blue-400 hover:text-white flex items-center gap-1 transition"><i class="fa-solid fa-external-link-alt"></i> 新竹縣議會</a>
+                            <a href="https://www.zhubei.gov.tw/jbc/" target="_blank" class="text-[10px] text-orange-400 hover:text-white flex items-center gap-1 transition"><i class="fa-solid fa-external-link-alt"></i> 竹北市民代表會</a>
                         </div>
                     </div>
                 </div>
@@ -408,14 +415,33 @@
         function checkLocation(item, loc) {
             const content = (item.Location + item.Content + item.Subject + (item.Tags||"")).toLowerCase();
             if (loc === 'all') return true;
+            
+            // 🔥 核心邏輯修正：竹北相關選區，必須嚴格排除外鄉鎮
             if (loc === '竹北市' || loc === '議員東區' || loc === '議員西區') {
                 const keywords = (loc === '竹北市') ? ZONE_CONFIG['竹北市'] : ZONE_CONFIG[loc];
                 const hasKeyword = keywords.some(k => content.includes(k));
+                
+                // 檢查是否包含外鄉鎮關鍵字
                 const otherTowns = ZONE_CONFIG['其他鄉鎮'];
-                const isOther = otherTowns.some(t => content.includes(t) && !content.includes('竹北'));
-                if (item.Level && item.Level.includes('代表')) return true;
-                return hasKeyword && !isOther;
+                const isOther = otherTowns.some(t => content.includes(t));
+
+                // 💡 關鍵判定：
+                // 1. 如果是市代會資料，預設通過 (市代會管不到外鄉鎮)。
+                // 2. 如果是縣議會資料：
+                //    - 必須包含竹北關鍵字 (hasKeyword)
+                //    - 且不能「只提到外鄉鎮而沒提到竹北」
+                //    - 如果同時提到竹北和新豐 (例如參考竹北經驗)，則視為相關，不排除。
+                
+                if (item.Level && item.Level.includes('代表')) return true; 
+
+                // 如果提到外鄉鎮，但內容完全沒有「竹北」二字，則排除
+                if (isOther && !content.includes('竹北')) {
+                    return false; 
+                }
+                
+                return hasKeyword;
             }
+            
             if (ZONE_CONFIG[loc]) return ZONE_CONFIG[loc].some(k => content.includes(k));
             return true;
         }
@@ -458,7 +484,6 @@
             else moreBtn.classList.add('hidden');
         }
 
-        // 🔥 新增：更新篩選狀態條
         function updateActiveFilterBanner(search, type, loc, rep, level, topic) {
             const banner = document.getElementById('filterStatusArea');
             const container = document.getElementById('activeFilterTags');
@@ -500,8 +525,8 @@
                 const contentDisplay = isLong ? item.Content.substring(0, 100) + '...' : item.Content;
                 const expandHtml = isLong ? `<span class="text-blue-500 cursor-pointer ml-2 text-xs font-bold" onclick="this.parentElement.nextElementSibling.classList.remove('hidden');this.parentElement.classList.add('hidden')">展開全文</span>` : '';
                 const fullHtml = isLong ? `<div class="hidden mt-2 text-sm text-slate-700 bg-white p-3 rounded border border-slate-100 leading-relaxed">${item.Content}</div>` : '';
-                const linkHtml = item.Source && item.Source.startsWith('http') 
-                    ? `<a href="${item.Source}" target="_blank" class="btn-source"><i class="fa-solid fa-file-pdf"></i> 原始文件</a>` : '';
+                const linkBtn = item.PDF_Url || (item.Source && item.Source.startsWith('http') ? item.Source : '');
+                const linkHtml = linkBtn ? `<a href="${linkBtn}" target="_blank" class="btn-source"><i class="fa-solid fa-file-lines"></i> 原始文件</a>` : '';
 
                 let secondLine = "";
                 if (item.Target_Unit && item.Target_Unit !== '-') {
