@@ -16,25 +16,20 @@
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
         
         /* 導航列 */
-        .navbar-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .navbar-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.3s; }
         
         /* Hero 區塊 */
-        .hero-section { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: white; padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .hero-section { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding-top: 0.75rem; padding-bottom: 0.75rem; }
         
-        /* 🔥 超級醒目的篩選按鈕 */
+        /* 按鈕樣式 */
         .btn-filter-toggle { 
-            background-color: #1e40af; /* 深藍 */
-            color: white; 
-            border: 2px solid #1e40af;
+            background-color: #1e40af; color: white; border: 2px solid #1e40af;
             box-shadow: 0 4px 6px rgba(30, 64, 175, 0.3); 
-            transition: all 0.2s; 
-            padding-left: 1.25rem; padding-right: 1.25rem; /* 加寬 */
+            transition: all 0.2s; padding: 0.5rem 1.25rem;
         }
-        .btn-filter-toggle:hover { background-color: #1e3a8a; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(30, 64, 175, 0.4); }
+        .btn-filter-toggle:hover { background-color: #1e3a8a; transform: translateY(-1px); }
         .btn-filter-toggle.active { background-color: #f59e0b; border-color: #f59e0b; color: white; }
-        .btn-filter-toggle i { color: #fcd34d; } /* 黃色圖示 */
 
-        /* 🔥 直觀的清除按鈕 */
         .btn-reset {
             background-color: white; color: #dc2626; border: 2px solid #fecaca;
             transition: all 0.2s; font-weight: 600;
@@ -51,11 +46,9 @@
         .card-proposal { border-left: 5px solid #3b82f6; }
         .card-interpellation { border-left: 5px solid #f97316; }
 
-        /* 原始文件按鈕 */
+        /* 按鈕與標籤 */
         .btn-source { background: white; border: 1px solid #94a3b8; color: #475569; font-size: 0.7rem; padding: 4px 12px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
         .btn-source:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
-
-        /* 標籤 */
         .tag-badge { font-size: 0.75rem; padding: 2px 10px; border-radius: 9999px; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.8); border: 1px solid #e2e8f0; font-weight: 500; }
         .tag-badge:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 
@@ -72,7 +65,8 @@
 
     <nav class="navbar-sticky">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16"> <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
                     <div class="bg-slate-800 text-white w-9 h-9 flex items-center justify-center rounded-lg shadow-lg">
                         <i class="fa-solid fa-gavel text-lg"></i>
                     </div>
@@ -93,7 +87,7 @@
                                class="w-full pl-2 pr-2 py-1.5 rounded-lg border border-slate-300 text-xs" oninput="document.getElementById('searchInput').value=this.value; document.getElementById('searchInput').dispatchEvent(new Event('input'));">
                     </div>
                     
-                    <button onclick="toggleFilterPanel()" id="filterToggleBtn" class="btn-filter-toggle flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold shadow-md">
+                    <button onclick="toggleFilterPanel()" id="filterToggleBtn" class="btn-filter-toggle flex items-center gap-1.5 rounded-full text-sm font-bold shadow-md">
                         <i class="fa-solid fa-sliders"></i> 
                         <span>篩選條件</span>
                     </button>
@@ -107,16 +101,15 @@
 
         <div id="filterPanel" class="absolute w-full left-0 top-16 z-40">
             <div class="max-w-7xl mx-auto px-4 py-6 bg-slate-50 border-b border-slate-200 shadow-inner">
-                
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     <div class="col-span-2 md:col-span-1 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
-                        <label class="block text-[11px] font-bold text-blue-600 mb-1.5 uppercase tracking-wider">📍 您住在哪裡？</label>
+                        <label class="block text-[11px] font-bold text-blue-600 mb-1.5 uppercase tracking-wider">📍 居住地</label>
                         <select id="myVillageFilter" class="w-full text-sm rounded border-slate-300 py-2 bg-blue-50 text-blue-900 border-blue-200 focus:ring-blue-500 cursor-pointer font-medium">
                             <option value="">-- 選擇里別 (自動定位) --</option>
                         </select>
                     </div>
 
-                    <div>
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5">🗺️ 區域/選區</label>
                         <select id="locationFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition">
                             <option value="竹北市" selected>🏠 竹北市 (預設)</option>
@@ -127,7 +120,7 @@
                                 <option value="市代三區">第3選區</option>
                                 <option value="市代四區">第4選區</option>
                             </optgroup>
-                            <optgroup label="縣議員選區">
+                            <optgroup label="縣議員選區 - 竹北">
                                 <option value="議員東區">東區 (鐵路以東)</option>
                                 <option value="議員西區">西區 (鐵路以西)</option>
                             </optgroup>
@@ -138,14 +131,14 @@
                         </select>
                     </div>
 
-                    <div class="col-span-1 md:col-span-1">
+                    <div class="col-span-1 md:col-span-1 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5">🏷️ 議題分類</label>
                         <select id="topicFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition">
                             <option value="all">所有議題</option>
-                            </select>
+                        </select>
                     </div>
 
-                    <div>
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5">📑 屬性</label>
                         <div class="flex gap-1">
                             <select id="typeFilter" class="w-1/2 text-xs rounded border-slate-300 py-1.5 cursor-pointer">
@@ -159,14 +152,14 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5">👤 代議士</label>
                         <select id="repFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition">
                             <option value="all">所有代議士</option>
                         </select>
                     </div>
 
-                    <div>
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5">📅 日期排序</label>
                         <select id="sortFilter" class="w-full text-sm rounded border-slate-300 py-1.5 cursor-pointer bg-white hover:border-blue-400 transition text-center">
                             <option value="date_desc">⬇️ 由新到舊</option>
@@ -177,7 +170,7 @@
                 
                 <div class="text-center pt-4 mt-2 border-t border-slate-200">
                     <button onclick="toggleFilterPanel()" class="text-xs text-slate-500 hover:text-blue-600 transition flex items-center justify-center w-full font-medium">
-                        <i class="fa-solid fa-chevron-up mr-1"></i> 收起篩選面板
+                        <i class="fa-solid fa-chevron-up mr-1"></i> 收起面板
                     </button>
                 </div>
             </div>
@@ -204,7 +197,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <h4 class="font-bold text-white mb-3 text-sm border-b border-slate-700 pb-2 flex items-center">
-                            <i class="fa-solid fa-book-open text-green-400 mr-2"></i> 簡易操作指南
+                            <i class="fa-solid fa-book-open text-green-400 mr-2"></i> 💡 簡易操作指南
                         </h4>
                         <ul class="list-none space-y-2.5 opacity-90">
                             <li class="flex items-start gap-2">
@@ -224,14 +217,14 @@
                     
                     <div>
                         <h4 class="font-bold text-white mb-3 text-sm border-b border-slate-700 pb-2 flex items-center">
-                            <i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-2"></i> 關於資料完整性的誠實聲明
+                            <i class="fa-solid fa-triangle-exclamation text-yellow-500 mr-2"></i> 關於資料完整性與解讀
                         </h4>
-                        <div class="space-y-2 text-justify opacity-90 leading-relaxed">
+                        <div class="space-y-3 text-justify opacity-90 leading-relaxed">
                             <p>
-                                本平台資料透過程式自動化抓取自政府公開網站。然而，目前<strong>新竹縣議會與竹北市民代表會的數位化程度皆有待提升</strong>，缺乏結構化的開放資料 (Open Data) 系統。
+                                <strong>1. 數位化落差：</strong> 本平台資料抓取自政府公開網站。新竹縣議會與竹北市民代表會的數位化程度皆有待提升，其中<strong>竹北市代會的系統更為封閉</strong>，導致資料取得困難。您若看到內容有斷行或排版瑕疵，皆為程式自動擷取、未經人工修飾的真實樣貌。
                             </p>
                             <p>
-                                相較之下，<strong>竹北市民代表會的資訊公開介面更為傳統與封閉</strong>，這使得資料取得面臨極大挑戰。您可能會在部分內容中看到<strong>生硬的斷行或排版瑕疵</strong>，請理解這是為了確保資料<strong>「原汁原味、未經人工變造」</strong>的鐵證。
+                                <strong>2. 數據非唯一標準：</strong> <strong>「提案通過」僅代表建議案成立，不代表行政機關已執行完成。</strong> 此外，代議士的職責還包含選民服務、預算審查、地方協調等，請勿單以提案/質詢數量的多寡來評斷優劣。
                             </p>
                         </div>
                         <div class="mt-3 pt-3 border-t border-slate-700 flex gap-4">
@@ -245,12 +238,10 @@
     </div>
 
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
-        
         <div id="loadingArea" class="py-12 text-center">
             <div class="loading-spinner mb-3"></div>
             <p class="text-xs text-slate-400 animate-pulse">資料庫同步中...</p>
         </div>
-
         <div id="chartsView" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-200">
                 <h3 class="text-xs font-bold text-slate-600 mb-2 pl-2 border-l-2 border-blue-500">議題關注</h3>
@@ -261,7 +252,6 @@
                 <div class="chart-container"><canvas id="repChart"></canvas></div>
             </div>
         </div>
-
         <div id="listView" class="hidden">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
                 <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
@@ -315,7 +305,6 @@
         }
         function toggleInfo() { document.getElementById('infoPanel').classList.toggle('open'); }
         
-        // 捲動自動收合
         window.addEventListener('scroll', () => {
             if (window.scrollY > 150) {
                 document.getElementById('filterPanel').classList.remove('open');
@@ -402,6 +391,7 @@
                 opt.value = r; opt.text = `${r} ${p ? p.RepTitle : ''}`;
                 repSelect.appendChild(opt);
             });
+            
             const levels = [...new Set(data.map(i => i.Level))].filter(l => l);
             const levelSelect = document.getElementById('levelFilter');
             levels.forEach(l => {
@@ -466,8 +456,8 @@
 
             updateDashboard(filteredData);
             renderList(filteredData.slice(0, displayLimit));
-            document.getElementById('resultCountBadge').innerText = `${filteredData.length} 筆`;
             
+            document.getElementById('resultCountBadge').innerText = `${filteredData.length} 筆`;
             const moreBtn = document.getElementById('loadMoreBtn');
             if (filteredData.length > displayLimit) moreBtn.classList.remove('hidden');
             else moreBtn.classList.add('hidden');
