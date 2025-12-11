@@ -36,8 +36,10 @@
         
         .card { background: white; border-radius: 0.75rem; border: 1px solid #e2e8f0; transition: transform 0.2s; position: relative; overflow: hidden; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.1); border-color: #94a3b8; }
-        .card-proposal { border-left: 5px solid #3b82f6; }
-        .card-interpellation { border-left: 5px solid #f97316; }
+        /* 卡片左側邊框顏色 */
+        .card-proposal { border-left: 5px solid #3b82f6; } /* 提案：藍 */
+        .card-interpellation { border-left: 5px solid #f97316; } /* 質詢：橘 */
+        .card-report { border-left: 5px solid #64748b; } /* 報告：灰 */
 
         .btn-source { background: white; border: 1px solid #94a3b8; color: #475569; font-size: 0.7rem; padding: 4px 12px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
         .btn-source:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
@@ -136,6 +138,7 @@
                                 <option value="all">類型</option>
                                 <option value="提案">提案</option>
                                 <option value="質詢">質詢</option>
+                                <option value="報告">報告</option>
                             </select>
                             <select id="levelFilter" class="w-1/2 text-xs rounded border-slate-300 py-1.5 cursor-pointer">
                                 <option value="all">層級</option>
@@ -272,10 +275,11 @@
     </main>
 
     <script>
+        // ⚠️ 請確保這裡的網址是您最新的資料庫網址
         const URLS = [
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=0&single=true&output=csv',
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1384163042&single=true&output=csv',
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1109447761&single=true&output=csv'
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=0&single=true&output=csv', // City_Reps (竹北市代)
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1384163042&single=true&output=csv', // 縣議會提案
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8LyR_Hk5G7acamCR14xRSQt_ZDUroDJhUVcshHBk7_BUucbev5QwJVrAKcX1ARUJsWImIZwuU5lsT/pub?gid=1109447761&single=true&output=csv'  // 縣議會質詢
         ];
 
         const VILLAGE_MAP = {
@@ -416,25 +420,15 @@
             const content = (item.Location + item.Content + item.Subject + (item.Tags||"")).toLowerCase();
             if (loc === 'all') return true;
             
-            // 🔥 核心邏輯修正：竹北相關選區，必須嚴格排除外鄉鎮
             if (loc === '竹北市' || loc === '議員東區' || loc === '議員西區') {
                 const keywords = (loc === '竹北市') ? ZONE_CONFIG['竹北市'] : ZONE_CONFIG[loc];
                 const hasKeyword = keywords.some(k => content.includes(k));
                 
-                // 檢查是否包含外鄉鎮關鍵字
                 const otherTowns = ZONE_CONFIG['其他鄉鎮'];
                 const isOther = otherTowns.some(t => content.includes(t));
 
-                // 💡 關鍵判定：
-                // 1. 如果是市代會資料，預設通過 (市代會管不到外鄉鎮)。
-                // 2. 如果是縣議會資料：
-                //    - 必須包含竹北關鍵字 (hasKeyword)
-                //    - 且不能「只提到外鄉鎮而沒提到竹北」
-                //    - 如果同時提到竹北和新豐 (例如參考竹北經驗)，則視為相關，不排除。
-                
                 if (item.Level && item.Level.includes('代表')) return true; 
 
-                // 如果提到外鄉鎮，但內容完全沒有「竹北」二字，則排除
                 if (isOther && !content.includes('竹北')) {
                     return false; 
                 }
@@ -516,26 +510,48 @@
                 return;
             }
             data.forEach(item => {
-                let typeClass = 'bg-slate-100 text-slate-600';
-                if(item.Type === '提案') typeClass = 'bg-blue-100 text-blue-600 border border-blue-100';
-                if(item.Type === '質詢') typeClass = 'bg-orange-100 text-orange-600 border border-orange-100';
+                // 設定類型顏色：提案=藍, 質詢=橘, 報告=灰(預設)
+                let typeClass = 'bg-slate-100 text-slate-600 border border-slate-100';
+                let cardBorderClass = 'card-report';
+                if(item.Type === '提案') { typeClass = 'bg-blue-100 text-blue-600 border border-blue-100'; cardBorderClass = 'card-proposal'; }
+                if(item.Type === '質詢') { typeClass = 'bg-orange-100 text-orange-600 border border-orange-100'; cardBorderClass = 'card-interpellation'; }
+                
                 let sessionStr = item.Level.includes("議會") ? "縣議會第20屆" : "市代會第10屆";
                 
                 const isLong = item.Content && item.Content.length > 100;
                 const contentDisplay = isLong ? item.Content.substring(0, 100) + '...' : item.Content;
                 const expandHtml = isLong ? `<span class="text-blue-500 cursor-pointer ml-2 text-xs font-bold" onclick="this.parentElement.nextElementSibling.classList.remove('hidden');this.parentElement.classList.add('hidden')">展開全文</span>` : '';
                 const fullHtml = isLong ? `<div class="hidden mt-2 text-sm text-slate-700 bg-white p-3 rounded border border-slate-100 leading-relaxed">${item.Content}</div>` : '';
-                const linkBtn = item.PDF_Url || (item.Source && item.Source.startsWith('http') ? item.Source : '');
-                const linkHtml = linkBtn ? `<a href="${linkBtn}" target="_blank" class="btn-source"><i class="fa-solid fa-file-lines"></i> 原始文件</a>` : '';
+                
+                // 連結按鈕邏輯：優先 PDF_Url，其次 Source (如果是網址)
+                let linkBtn = item.PDF_Url || (item.Source && item.Source.startsWith('http') ? item.Source : '');
+                let linkHtml = linkBtn ? `<a href="${linkBtn}" target="_blank" class="btn-source"><i class="fa-solid fa-file-lines"></i> 原始文件</a>` : '';
 
+                // 第二行資訊 (連署/質詢對象)
                 let secondLine = "";
                 if (item.Target_Unit && item.Target_Unit !== '-') {
-                     const label = item.Type === '提案' ? '🤝 連署' : '📢 質詢';
+                     const label = item.Type === '提案' ? '🤝 連署' : (item.Type === '報告' ? '🏢 單位' : '📢 質詢');
                      secondLine = `<div class="text-xs text-slate-500 mt-1 ml-1"><span class="font-bold text-slate-600">${label}：</span>${item.Target_Unit}</div>`;
                 }
 
+                // 市府回應區塊 (Result) - 只有當有內容且不是 "-" 時才顯示
+                let resultHtml = "";
+                if (item.Result && item.Result.trim() !== "-" && item.Result.trim() !== "") {
+                    resultHtml = `
+                        <div class="mt-3 pt-2 border-t border-slate-100 bg-yellow-50/50 p-2 rounded">
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-reply text-slate-400 mt-1 mr-2 text-xs"></i>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-500 block">市府/單位回應</span>
+                                    <p class="text-xs text-slate-700 mt-0.5">${item.Result}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 const html = `
-                    <div class="card p-4 ${item.Type === '提案' ? 'card-proposal' : 'card-interpellation'}">
+                    <div class="card p-4 ${cardBorderClass}">
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex gap-2 items-center">
                                 <span class="tag-badge ${typeClass}">${item.Type}</span>
@@ -554,7 +570,10 @@
                             <div class="text-sm text-slate-600 leading-relaxed">${contentDisplay} ${expandHtml}</div>
                             ${fullHtml}
                         </div>
-                        <div class="flex justify-between items-center border-t border-slate-100 pt-2">
+                        
+                        ${resultHtml}
+
+                        <div class="flex justify-between items-center border-t border-slate-100 pt-2 mt-2">
                             <div class="flex flex-wrap gap-1">
                                 ${item.tagList.map(t => `<span class="tag-badge text-slate-500 hover:text-blue-600" onclick="quickSearch('${t}')">#${t}</span>`).join('')}
                             </div>
